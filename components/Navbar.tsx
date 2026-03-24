@@ -20,6 +20,7 @@ export default function Navbar() {
   const { data: session, status } = useSession();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [favoritesCount, setFavoritesCount] = useState(0);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     const fetchFavorites = async () => {
@@ -34,7 +35,17 @@ export default function Navbar() {
         setFavoritesCount(local.length);
       }
     };
+    const fetchUnread = async () => {
+      if (session?.user?.id) {
+        try {
+          const res = await fetch('/api/messages?unread=true');
+          const data = await res.json();
+          setUnreadCount(data.length || 0);
+        } catch (err) { /* ignore */ }
+      }
+    };
     fetchFavorites();
+    fetchUnread();
   }, [session]);
 
   return (
@@ -67,6 +78,16 @@ export default function Navbar() {
               <span className="text-gray-400">Loading...</span>
             ) : session ? (
               <div className="flex items-center gap-3">
+                <Link href="/dashboard/messages" className="relative text-gray-700 hover:text-primary-600">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">
+                      {unreadCount}
+                    </span>
+                  )}
+                </Link>
                 <Link href="/dashboard/favorites" className="relative text-gray-700 hover:text-primary-600">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />

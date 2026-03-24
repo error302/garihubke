@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -52,25 +54,59 @@ function Icon({ name }: { name: string }) {
 
 export function Sidebar() {
   const pathname = usePathname();
-  
+  const { data: session } = useSession();
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [newMatchesCount, setNewMatchesCount] = useState(0);
+
+  useEffect(() => {
+    const fetchCounts = async () => {
+      if (!session?.user?.id) return;
+      try {
+        const [msgs, searches] = await Promise.all([
+          fetch('/api/messages?unread=true').then(r => r.json()),
+          fetch('/api/saved-searches').then(r => r.json())
+        ]);
+        setUnreadCount(msgs?.length || 0);
+        setNewMatchesCount(searches?.length || 0);
+      } catch (err) { /* ignore */ }
+    };
+    fetchCounts();
+  }, [session]);
+
   return (
     <div className="bg-white rounded-lg shadow-md p-4">
       <nav className="space-y-1">
-        {navItems.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={cn(
-              "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
-              pathname === item.href
-                ? "bg-primary-50 text-primary-600"
-                : "text-gray-700 hover:bg-gray-50"
-            )}
-          >
-            <Icon name={item.icon} />
-            {item.label}
-          </Link>
-        ))}
+        {navItems.map((item) => {
+          const showBadge = item.icon === 'mail' && unreadCount > 0;
+          const showSearchBadge = item.icon === 'search' && newMatchesCount > 0;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex items-center justify-between gap-3 px-4 py-3 rounded-lg transition-colors",
+                pathname === item.href
+                  ? "bg-primary-50 text-primary-600"
+                  : "text-gray-700 hover:bg-gray-50"
+              )}
+            >
+              <div className="flex items-center gap-3">
+                <Icon name={item.icon} />
+                {item.label}
+              </div>
+              {showBadge && (
+                <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                  {unreadCount}
+                </span>
+              )}
+              {showSearchBadge && (
+                <span className="bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">
+                  {newMatchesCount}
+                </span>
+              )}
+            </Link>
+          );
+        })}
       </nav>
       
       <button
