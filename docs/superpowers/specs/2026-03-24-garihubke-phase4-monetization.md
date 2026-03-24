@@ -81,6 +81,13 @@ enum SubscriptionTier {
   BUSINESS = 'business'
 }
 
+enum SubscriptionStatus {
+  PENDING = 'pending'
+  ACTIVE = 'active'
+  EXPIRED = 'expired'
+  CANCELLED = 'cancelled'
+}
+
 enum PremiumFeature {
   FEATURED = 'featured'
   VERIFIED = 'verified'
@@ -99,14 +106,27 @@ model Subscription {
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   tier      SubscriptionTier
+  status    SubscriptionStatus @default(PENDING)
   startDate DateTime
   endDate   DateTime
-  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
+}
+
+model Payment {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  subscriptionId String?
+  amount        Int
+  currency      String   @default("KES")
+  stripePaymentId String
+  status        String   // succeeded, failed, pending
+  createdAt     DateTime @default(now())
 }
 
 model PremiumListing {
   id        String   @id @default(cuid())
+  userId    String
   listingId String
   listing   Listing  @relation(fields: [listingId], references: [id])
   feature   PremiumFeature
@@ -122,6 +142,7 @@ model AdCampaign {
   imageUrl    String
   clickUrl    String
   budget      Int
+  costPerClick Int     @default(50)  // KSh 50
   clicks      Int      @default(0)
   impressions Int      @default(0)
   isActive    Boolean  @default(true)
@@ -167,9 +188,12 @@ model AdCampaign {
 
 1. User clicks upgrade/subscribe button
 2. Redirect to Stripe Checkout with price ID
-3. Stripe webhook confirms payment
-4. Server action updates subscription status
+3. Stripe webhook (`/api/webhooks/stripe`) confirms payment
+4. Server action updates subscription status to ACTIVE
 5. User redirected to dashboard with success message
+
+**Stripe Webhook Endpoint:** `POST /api/webhooks/stripe`
+- Handles `checkout.session.completed`, `invoice.payment_succeeded`, `customer.subscription.deleted`
 
 **Payment Failure Handling:**
 - If payment fails, user is notified via email
@@ -177,7 +201,7 @@ model AdCampaign {
 - After 7 days, automatically downgraded to free tier
 
 **Subscription Downgrade:**
-- When downgrading from Business (unlimited) to Pro (5 listings), existing listings remain but new listings are blocked until under limit
+- When downgrading from Business (unlimited) to Pro (5 listings), listings beyond the limit are archived (not deleted, but hidden from public). User can reactivate by upgrading or deleting excess listings.
 
 ## Scheduled Jobs
 
