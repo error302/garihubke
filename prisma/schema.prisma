@@ -19,6 +19,9 @@ model User {
   accounts      Account[]
   sessions      Session[]
   favorites     Favorite[]
+  subscriptions Subscription[]
+  payments      Payment[]
+  adCampaigns   AdCampaign[]
 }
 
 model Account {
@@ -115,4 +118,54 @@ model Listing {
   status           String   @default("pending")
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+  premiumListings  PremiumListing[]
+}
+
+model Subscription {
+  id        String             @id @default(cuid())
+  userId    String
+  user      User               @relation(fields: [userId], references: [id])
+  tier      String
+  status    String             @default("PENDING")
+  startDate DateTime
+  endDate   DateTime
+  createdAt DateTime           @default(now())
+}
+
+model Payment {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  subscriptionId  String?
+  amount          Int
+  currency        String   @default("KES")
+  stripePaymentId String
+  status          String
+  createdAt       DateTime @default(now())
+}
+
+model PremiumListing {
+  id        String         @id @default(cuid())
+  userId    String
+  listingId String
+  listing   Listing        @relation(fields: [listingId], references: [id])
+  feature   String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model AdCampaign {
+  id           String     @id @default(cuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id])
+  position     String
+  imageUrl     String
+  clickUrl     String
+  budget       Int
+  costPerClick Int        @default(50)
+  clicks       Int        @default(0)
+  impressions  Int        @default(0)
+  isActive     Boolean    @default(true)
+  startDate    DateTime
+  endDate      DateTime
 }
