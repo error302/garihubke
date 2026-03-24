@@ -6,6 +6,7 @@ import { vehicles } from '@/data/vehicles';
 import VehicleGrid from '@/components/VehicleGrid';
 import FilterSidebar from '@/components/FilterSidebar';
 import SearchBar from '@/components/SearchBar';
+import AdSidebar from '@/components/AdSidebar';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -184,6 +185,7 @@ function VehiclesContent() {
           </button>
           <div className={`${showMobileFilters ? 'block' : 'hidden'} lg:block`}>
             <FilterSidebar filters={filters} onFilterChange={handleFilterChange} />
+            <AdSidebar />
           </div>
         </div>
 

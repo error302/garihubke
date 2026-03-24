@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { vehicles, categories } from '@/data/vehicles';
 import VehicleCard from '@/components/VehicleCard';
 import SearchBar from '@/components/SearchBar';
+import AdBanner from '@/components/AdBanner';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -59,6 +60,8 @@ export default function Home() {
           </motion.div>
         </div>
       </motion.section>
+
+      <AdBanner position="HOMEPAGE_BANNER" />
 
       <motion.section 
         initial={{ opacity: 0 }}
