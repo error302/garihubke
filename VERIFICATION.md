@@ -4,10 +4,14 @@
 
 ### Phase 1 - Core Browsing
 - [x] Homepage loads with hero, featured vehicles, categories, CTA
+- [x] Featured vehicles as horizontal scroll carousel
 - [x] Vehicles listing page with filters, search, sort, pagination
 - [x] Vehicle details page with gallery, lightbox, specs, seller
+- [x] Contact form on vehicle details page
 - [x] Favorites with localStorage
 - [x] Responsive design
+- [x] Mobile collapsible filter sidebar
+- [x] Additional sort options (mileage, year)
 
 ### Phase 2 - Auth & Dashboard
 - [x] User registration (/register)
@@ -42,6 +46,14 @@
 - Auth system works
 - Favorites persist
 - Search/filter works
+- All responsive breakpoints
+
+## Features Added After Review
+1. Featured vehicles carousel (horizontal scroll)
+2. Mobile filter sidebar toggle
+3. Sort by mileage (low/high)
+4. Sort by year (new/old)
+5. "Sort by:" label
 
 ## Potential Improvements (Not Bugs)
 - Phase 2 Google OAuth needs credentials
