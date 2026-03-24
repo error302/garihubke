@@ -122,14 +122,15 @@ model Listing {
 }
 
 model Subscription {
-  id        String             @id @default(cuid())
-  userId    String
-  user      User               @relation(fields: [userId], references: [id])
-  tier      String
-  status    String             @default("PENDING")
-  startDate DateTime
-  endDate   DateTime
-  createdAt DateTime           @default(now())
+  id                  String             @id @default(cuid())
+  userId              String
+  user                User               @relation(fields: [userId], references: [id])
+  stripeSubscriptionId String?
+  tier                String
+  status              String             @default("PENDING")
+  startDate           DateTime
+  endDate             DateTime
+  createdAt           DateTime           @default(now())
 }
 
 model Payment {
