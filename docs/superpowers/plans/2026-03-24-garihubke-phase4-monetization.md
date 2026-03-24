@@ -1005,19 +1005,19 @@ export default function PremiumBadge({ type }: PremiumBadgeProps) {
     featured: {
       text: 'Featured',
       bg: 'bg-yellow-100',
-      text: 'text-yellow-800',
+      textColor: 'text-yellow-800',
       icon: '⭐',
     },
     verified: {
       text: 'Verified',
       bg: 'bg-green-100',
-      text: 'text-green-800',
+      textColor: 'text-green-800',
       icon: '✓',
     },
     premium: {
       text: 'Premium',
       bg: 'bg-purple-100',
-      text: 'text-purple-800',
+      textColor: 'text-purple-800',
       icon: '👑',
     },
   };
@@ -1025,7 +1025,7 @@ export default function PremiumBadge({ type }: PremiumBadgeProps) {
   const badge = badges[type];
 
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${badge.bg} ${badge.text}`}>
+    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${badge.bg} ${badge.textColor}`}>
       <span>{badge.icon}</span>
       <span>{badge.text}</span>
     </span>
@@ -1042,7 +1042,648 @@ git commit -m "feat: add PremiumBadge component"
 
 ---
 
-## Task 14: Build and Verify
+## Task 14: Webhook Implementation
+
+**Files:**
+- Modify: `app/api/webhooks/stripe/route.ts`
+
+- [ ] **Step 1: Implement webhook handlers**
+
+Update `app/api/webhooks/stripe/route.ts`:
+
+```typescript
+import { NextRequest, NextResponse } from 'next/server';
+import { stripe } from '@/lib/stripe';
+import { headers } from 'next/headers';
+import prisma from '@/lib/db';
+
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
+export async function POST(req: NextRequest) {
+  const body = await req.text();
+  const headersList = await headers();
+  const signature = headersList.get('stripe-signature') as string;
+
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(
+      body,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET || ''
+    );
+  } catch (err) {
+    console.error('Webhook signature error:', err);
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
+  }
+
+  switch (event.type) {
+    case 'checkout.session.completed': {
+      const session = event.data.object;
+      const userId = session.metadata?.userId;
+      const tier = session.metadata?.tier;
+
+      if (userId && tier) {
+        await prisma.subscription.create({
+          data: {
+            userId,
+            tier: tier as 'PRO' | 'BUSINESS',
+            status: 'ACTIVE',
+            startDate: new Date(),
+            endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+          },
+        });
+      }
+      break;
+    }
+
+    case 'invoice.payment_succeeded': {
+      const invoice = event.data.object;
+      const subscriptionId = invoice.subscription as string;
+
+      // Update subscription status to ACTIVE
+      if (subscriptionId) {
+        const subscription = await prisma.subscription.findFirst({
+          where: { stripeSubscriptionId: subscriptionId },
+        });
+        if (subscription) {
+          await prisma.subscription.update({
+            where: { id: subscription.id },
+            data: {
+              status: 'ACTIVE',
+              endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+            },
+          });
+        }
+      }
+      break;
+    }
+
+    case 'customer.subscription.deleted': {
+      const subscription = event.data.object;
+      const stripeSubId = subscription.id;
+
+      // Mark subscription as cancelled
+      await prisma.subscription.updateMany({
+        where: { stripeSubscriptionId: stripeSubId },
+        data: { status: 'CANCELLED' },
+      });
+      break;
+    }
+
+    case 'payment_intent.payment_failed': {
+      const paymentIntent = event.data.object;
+      const userId = paymentIntent.metadata?.userId;
+
+      // Update subscription to PENDING
+      if (userId) {
+        await prisma.subscription.updateMany({
+          where: { userId, status: 'ACTIVE' },
+          data: { status: 'PENDING' },
+        });
+      }
+      break;
+    }
+  }
+
+  return NextResponse.json({ received: true });
+}
+```
+
+- [ ] **Step 2: Commit**
+
+```bash
+git add app/api/webhooks/stripe/route.ts
+git commit -m "feat: implement Stripe webhook handlers"
+```
+
+---
+
+## Task 15: Scheduled Jobs (Cron)
+
+**Files:**
+- Create: `app/api/cron/expire-subscriptions/route.ts`
+- Create: `app/api/cron/check-ad-budgets/route.ts`
+
+- [ ] **Step 1: Create subscription expiration cron**
+
+```typescript
+import { NextResponse } from 'next/server';
+import prisma from '@/lib/db';
+
+export async function POST(req: Request) {
+  // Verify cron secret
+  const authHeader = req.headers.get('Authorization');
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // Deactivate expired subscriptions
+  const expired = await prisma.subscription.updateMany({
+    where: {
+      status: 'ACTIVE',
+      endDate: { lt: new Date() },
+    },
+    data: { status: 'EXPIRED' },
+  });
+
+  // Deactivate expired premium listings
+  const expiredPremiums = await prisma.premiumListing.updateMany({
+    where: {
+      expiresAt: { lt: new Date() },
+    },
+    data: { expiresAt: new Date() }, // Mark as expired
+  });
+
+  // End expired ad campaigns
+  const expiredCampaigns = await prisma.adCampaign.updateMany({
+    where: {
+      isActive: true,
+      endDate: { lt: new Date() },
+    },
+    data: { isActive: false },
+  });
+
+  return NextResponse.json({
+    expiredSubscriptions: expired.count,
+    expiredPremiums: expiredPremiums.count,
+    expiredCampaigns: expiredCampaigns.count,
+  });
+}
+```
+
+- [ ] **Step 2: Create ad budget check cron**
+
+```typescript
+import { NextResponse } from 'next/server';
+import prisma from '@/lib/db';
+
+export async function POST(req: Request) {
+  const authHeader = req.headers.get('Authorization');
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // Pause campaigns where budget is exceeded
+  const paused = await prisma.adCampaign.updateMany({
+    where: {
+      isActive: true,
+      clicks: { gte: prisma.adCampaign.fields.budget / prisma.adCampaign.fields.costPerClick },
+    },
+    data: { isActive: false },
+  });
+
+  return NextResponse.json({ pausedCampaigns: paused.count });
+}
+```
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add app/api/cron/expire-subscriptions/route.ts app/api/cron/check-ad-budgets/route.ts
+git commit -m "feat: add scheduled jobs for subscription expiration and ad budgets"
+```
+
+---
+
+## Task 16: Ad Creation Page
+
+**Files:**
+- Create: `app/dashboard/ads/new/page.tsx`
+
+- [ ] **Step 1: Create app/dashboard/ads/new/page.tsx**
+
+```typescript
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+
+export default function NewAdPage() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({
+    position: 'HOMEPAGE_BANNER',
+    imageUrl: '',
+    clickUrl: '',
+    budget: 5000,
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const res = await fetch('/api/ads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+
+      if (res.ok) {
+        router.push('/dashboard/ads');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-8">Create Ad Campaign</h1>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <label className="block text-sm font-medium mb-2">Ad Position</label>
+          <select
+            value={form.position}
+            onChange={(e) => setForm({ ...form, position: e.target.value })}
+            className="w-full px-3 py-2 border rounded-md"
+          >
+            <option value="HOMEPAGE_BANNER">Homepage Banner (728x90)</option>
+            <option value="CATEGORY_BANNER">Category Banner (728x90)</option>
+            <option value="LISTING_SIDEBAR">Sidebar Ad (300x250)</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2">Image URL</label>
+          <input
+            type="url"
+            required
+            value={form.imageUrl}
+            onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
+            className="w-full px-3 py-2 border rounded-md"
+            placeholder="https://example.com/ad.jpg"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2">Click URL</label>
+          <input
+            type="url"
+            required
+            value={form.clickUrl}
+            onChange={(e) => setForm({ ...form, clickUrl: e.target.value })}
+            className="w-full px-3 py-2 border rounded-md"
+            placeholder="https://example.com"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2">Budget (KSh)</label>
+          <input
+            type="number"
+            required
+            min="5000"
+            value={form.budget}
+            onChange={(e) => setForm({ ...form, budget: Number(e.target.value) })}
+            className="w-full px-3 py-2 border rounded-md"
+          />
+          <p className="text-sm text-gray-500 mt-1">Minimum KSh 5,000</p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-2">Start Date</label>
+            <input
+              type="date"
+              required
+              value={form.startDate}
+              onChange={(e) => setForm({ ...form, startDate: e.target.value })}
+              className="w-full px-3 py-2 border rounded-md"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">End Date</label>
+            <input
+              type="date"
+              required
+              value={form.endDate}
+              onChange={(e) => setForm({ ...form, endDate: e.target.value })}
+              className="w-full px-3 py-2 border rounded-md"
+            />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50"
+        >
+          {loading ? 'Creating...' : 'Create Campaign'}
+        </button>
+      </form>
+    </div>
+  );
+}
+```
+
+- [ ] **Step 2: Commit**
+
+```bash
+git add app/dashboard/ads/new/page.tsx
+git commit -m "feat: add ad creation page"
+```
+
+---
+
+## Task 17: Premium Feature Purchases
+
+**Files:**
+- Create: `app/api/premium/route.ts`
+- Create: `app/dashboard/premium/page.tsx`
+
+- [ ] **Step 1: Create premium feature API**
+
+```typescript
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import prisma from '@/lib/db';
+
+// Get premium listings for user
+export async function GET() {
+  const session = await getServerSession();
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const premiums = await prisma.premiumListing.findMany({
+    where: { userId: session.user.id },
+    include: { listing: true },
+  });
+
+  return NextResponse.json({ premiums });
+}
+
+// Purchase premium feature
+export async function POST(req: NextRequest) {
+  const session = await getServerSession();
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { listingId, feature } = await req.json();
+
+  // Set expiration based on feature
+  let expiresAt: Date;
+  switch (feature) {
+    case 'FEATURED':
+      expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 1 week
+      break;
+    case 'PREMIUM_PLACEMENT':
+      expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 1 week
+      break;
+    case 'VERIFIED':
+      expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 1 month
+      break;
+    case 'EXTENDED_DURATION':
+      expiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000); // 90 days
+      break;
+    default:
+      return NextResponse.json({ error: 'Invalid feature' }, { status: 400 });
+  }
+
+  const premium = await prisma.premiumListing.create({
+    data: {
+      userId: session.user.id,
+      listingId,
+      feature,
+      expiresAt,
+    },
+  });
+
+  return NextResponse.json({ premium }, { status: 201 });
+}
+```
+
+- [ ] **Step 2: Create premium dashboard page**
+
+```typescript
+'use client';
+
+import { useState, useEffect } from 'react';
+
+interface PremiumListing {
+  id: string;
+  feature: string;
+  expiresAt: string;
+  listing: { title: string };
+}
+
+export default function PremiumListingsPage() {
+  const [premiums, setPremiums] = useState<PremiumListing[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchPremiums();
+  }, []);
+
+  const fetchPremiums = async () => {
+    try {
+      const res = await fetch('/api/premium');
+      const data = await res.json();
+      setPremiums(data.premiums);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <div>Loading...</div>;
+
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-8">Premium Features</h1>
+
+      <div className="grid gap-4">
+        {premiums.map((premium) => (
+          <div key={premium.id} className="bg-white rounded-lg shadow-md p-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="font-semibold">{premium.listing.title}</h3>
+                <p className="text-sm text-gray-500 capitalize">{premium.feature.replace('_', ' ')}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-gray-500">Expires</p>
+                <p className="font-medium">
+                  {new Date(premium.expiresAt).toLocaleDateString()}
+                </p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+```
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add app/api/premium/route.ts app/dashboard/premium/page.tsx
+git commit -m "feat: add premium feature purchases and dashboard"
+```
+
+---
+
+## Task 18: Business Analytics
+
+**Files:**
+- Create: `app/dashboard/analytics/page.tsx`
+
+- [ ] **Step 1: Create analytics dashboard page**
+
+```typescript
+'use client';
+
+import { useState, useEffect } from 'react';
+
+interface Analytics {
+  totalViews: number;
+  totalInquiries: number;
+  viewsOverTime: { date: string; views: number }[];
+  topLocations: { location: string; views: number }[];
+}
+
+export default function AnalyticsPage() {
+  const [analytics, setAnalytics] = useState<Analytics | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchAnalytics();
+  }, []);
+
+  const fetchAnalytics = async () => {
+    try {
+      const res = await fetch('/api/analytics');
+      const data = await res.json();
+      setAnalytics(data);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <div>Loading...</div>;
+  if (!analytics) return <div>No analytics data</div>;
+
+  return (
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-8">Analytics</h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <p className="text-gray-500 text-sm">Total Views</p>
+          <p className="text-3xl font-bold">{analytics.totalViews.toLocaleString()}</p>
+        </div>
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <p className="text-gray-500 text-sm">Total Inquiries</p>
+          <p className="text-3xl font-bold">{analytics.totalInquiries.toLocaleString()}</p>
+        </div>
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <p className="text-gray-500 text-sm">CTR</p>
+          <p className="text-3xl font-bold">
+            {analytics.totalViews > 0
+              ? ((analytics.totalInquiries / analytics.totalViews) * 100).toFixed(2) + '%'
+              : '0%'}
+          </p>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-xl font-semibold mb-4">Views Over Time</h2>
+        <div className="space-y-2">
+          {analytics.viewsOverTime.map((item) => (
+            <div key={item.date} className="flex items-center gap-4">
+              <span className="text-sm text-gray-500 w-24">{item.date}</span>
+              <div className="flex-1 bg-gray-100 rounded-full h-4">
+                <div
+                  className="bg-primary-500 h-4 rounded-full"
+                  style={{ width: `${(item.views / analytics.totalViews) * 100}%` }}
+                />
+              </div>
+              <span className="text-sm font-medium w-16 text-right">{item.views}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-md p-6 mt-6">
+        <h2 className="text-xl font-semibold mb-4">Top Locations</h2>
+        <ul className="space-y-2">
+          {analytics.topLocations.map((loc) => (
+            <li key={loc.location} className="flex justify-between">
+              <span>{loc.location}</span>
+              <span className="font-medium">{loc.views}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+```
+
+- [ ] **Step 2: Create analytics API**
+
+```typescript
+// app/api/analytics/route.ts
+import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import prisma from '@/lib/db';
+
+export async function GET() {
+  const session = await getServerSession();
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // Get all listings for user
+  const listings = await prisma.listing.findMany({
+    where: { userId: session.user.id },
+  });
+
+  // Calculate analytics (mock data for now)
+  const totalViews = listings.reduce((sum, l) => sum + (l.views || 0), 0);
+  const totalInquiries = Math.floor(totalViews * 0.05); // 5% conversion
+
+  return NextResponse.json({
+    totalViews,
+    totalInquiries,
+    viewsOverTime: [
+      { date: '2026-03-20', views: 150 },
+      { date: '2026-03-21', views: 200 },
+      { date: '2026-03-22', views: 180 },
+      { date: '2026-03-23', views: 220 },
+      { date: '2026-03-24', views: 250 },
+    ],
+    topLocations: [
+      { location: 'Nairobi', views: 500 },
+      { location: 'Mombasa', views: 200 },
+      { location: 'Kisumu', views: 150 },
+    ],
+  });
+}
+```
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add app/dashboard/analytics/page.tsx app/api/analytics/route.ts
+git commit -m "feat: add business analytics dashboard"
+```
+
+---
+
+## Task 19: Build and Verify
 
 - [ ] **Step 1: Run build**
 
