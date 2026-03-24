@@ -495,3 +495,10 @@ export const categories = [
 export const makes = Array.from(new Set(vehicles.map(v => v.make))).sort();
 export const getModelsForMake = (make: string) => 
   Array.from(new Set(vehicles.filter(v => v.make === make).map(v => v.model))).sort();
+export const fuelTypes = ['petrol', 'diesel', 'electric', 'hybrid'];
+export const transmissions = ['manual', 'automatic'];
+export const features = [
+  'Air Conditioning', 'Power Windows', 'Leather Seats', 'Sunroof',
+  'Reverse Camera', 'GPS', 'Bluetooth', 'ABS', 'Alloy Wheels',
+  'Power Steering', 'Cruise Control', 'Fog Lights', 'Xenon Lights'
+];

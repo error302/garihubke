@@ -85,3 +85,34 @@ model SavedSearch {
   createdAt   DateTime @default(now())
   lastChecked DateTime @default(now())
 }
+
+model PasswordResetToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Listing {
+  id               String   @id @default(cuid())
+  userId           String
+  title            String
+  category         String
+  make             String
+  model            String
+  year             Int
+  price            Int
+  mileage          Int?
+  fuelType         String
+  transmission     String
+  description      String
+  sellerName       String
+  sellerPhone      String
+  sellerLocation   String
+  features         String
+  images           String
+  status           String   @default("pending")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
