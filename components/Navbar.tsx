@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useSession, signOut } from 'next-auth/react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -15,6 +16,7 @@ const navLinks = [
 
 export default function Navbar() {
   const pathname = usePathname();
+  const { data: session, status } = useSession();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -25,7 +27,7 @@ export default function Navbar() {
             <span className="text-2xl font-bold text-primary-600">GariHub</span>
           </Link>
           
-          <div className="hidden md:flex space-x-8">
+          <div className="hidden md:flex items-center space-x-8">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -38,9 +40,34 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
+            
+            {status === 'loading' ? (
+              <span className="text-gray-400">Loading...</span>
+            ) : session ? (
+              <Link
+                href="/dashboard"
+                className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+              >
+                Dashboard
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+              >
+                Login
+              </Link>
+            )}
           </div>
 
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center">
+            {session && (
+              <Link href="/dashboard" className="mr-4 text-primary-600">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </Link>
+            )}
             <button 
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="text-gray-700 p-2"
@@ -73,6 +100,35 @@ export default function Navbar() {
                   {link.label}
                 </Link>
               ))}
+              
+              {session ? (
+                <>
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-gray-700 hover:text-primary-600 transition-colors px-2 py-1"
+                  >
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={() => {
+                      signOut({ callbackUrl: '/' });
+                      setMobileMenuOpen(false);
+                    }}
+                    className="text-left text-red-600 hover:text-red-700 transition-colors px-2 py-1"
+                  >
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-primary-600 font-medium px-2 py-1"
+                >
+                  Login
+                </Link>
+              )}
             </div>
           </div>
         )}

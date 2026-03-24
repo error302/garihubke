@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import { Vehicle } from '@/types';
 import { formatPrice, cn } from '@/lib/utils';
 
@@ -11,6 +12,7 @@ interface VehicleCardProps {
 }
 
 export default function VehicleCard({ vehicle }: VehicleCardProps) {
+  const { data: session } = useSession();
   const [isFavorite, setIsFavorite] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -20,16 +22,33 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
     setIsFavorite(favorites.includes(vehicle.id));
   }, [vehicle.id]);
 
-  const toggleFavorite = (e: React.MouseEvent) => {
+  const toggleFavorite = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    
     const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
     let newFavorites;
+    
     if (favorites.includes(vehicle.id)) {
       newFavorites = favorites.filter((id: string) => id !== vehicle.id);
+      if (session) {
+        try {
+          await fetch(`/api/favorites?vehicleId=${vehicle.id}`, { method: 'DELETE' });
+        } catch (err) { /* ignore */ }
+      }
     } else {
       newFavorites = [...favorites, vehicle.id];
+      if (session) {
+        try {
+          await fetch('/api/favorites', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ vehicleId: vehicle.id }),
+          });
+        } catch (err) { /* ignore */ }
+      }
     }
+    
     localStorage.setItem('favorites', JSON.stringify(newFavorites));
     setIsFavorite(!isFavorite);
   };
