@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 
@@ -7,7 +6,6 @@ import { db } from '@/lib/db';
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const position = searchParams.get('position');
-  const session = await getServerSession();
 
   const where: any = { isActive: true };
   if (position) {
@@ -16,7 +14,7 @@ export async function GET(req: NextRequest) {
 
   const ads = await db.adCampaign.findMany({
     where,
-    orderBy: { createdAt: 'desc' },
+    orderBy: { startDate: 'desc' },
   });
 
   return NextResponse.json({ ads });

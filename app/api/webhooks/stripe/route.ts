@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe } from '@/lib/stripe';
+import { getStripe } from '@/lib/stripe';
 import { headers } from 'next/headers';
 import { db } from '@/lib/db';
 
@@ -13,6 +13,7 @@ export async function POST(req: NextRequest) {
 
   let event;
   try {
+    const stripe = getStripe();
     event = stripe.webhooks.constructEvent(
       body,
       signature,
@@ -44,8 +45,8 @@ export async function POST(req: NextRequest) {
     }
 
     case 'invoice.payment_succeeded': {
-      const invoice = event.data.object;
-      const subscriptionId = invoice.subscription as string;
+      const invoice = event.data.object as any;
+      const subscriptionId = invoice.subscription;
 
       if (subscriptionId) {
         await db.subscription.updateMany({
