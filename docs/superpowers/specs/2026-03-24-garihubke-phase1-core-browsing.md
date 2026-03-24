@@ -94,15 +94,43 @@ interface Vehicle {
 - Tablet: 640px - 1024px
 - Desktop: > 1024px
 
+## Additional Specifications
+
+**Navbar Links**: "Sell" and "Contact" link to placeholder pages with "Coming Soon" message. "About" links to `/about` page (simple static page).
+
+**Filter Behavior**: Instant client-side filtering on any filter change (no Apply button)
+
+**Pagination**: 12 vehicles per page
+
+**Sort Options**: Price (Low-High), Price (High-Low), Newest, Oldest
+
+**Search**: Searches make, model, and title fields
+
+**Featured Vehicles**: 6 most recently added vehicles
+
+**Similar Vehicles**: If fewer than 4 exist in category, fill from all vehicles
+
+**Empty State**: Display "No vehicles found" message with "Reset Filters" button
+
+**Price Format**: KSh 1,500,000 (comma separators)
+
+**Favorites**: Store in localStorage, show filled heart icon when favorited
+
+**Image Lightbox**: Click to open overlay with close button (X), prev/next arrows, keyboard navigation (Escape to close, arrows to navigate)
+
 ## Acceptance Criteria
 
 1. Homepage loads with hero, featured vehicles, categories, CTA
 2. Clicking "View All" on featured vehicles goes to listing page
-3. Listing page displays all vehicles in grid
-4. Filters update vehicle list (client-side)
-5. Clicking a vehicle card navigates to details page
-6. Details page shows all vehicle info, gallery, seller contact
-7. "Similar vehicles" shows 4 vehicles from same category
-8. All pages are responsive (mobile-friendly)
-9. Navigation works between all pages
-10. No console errors on any page
+3. Listing page displays all vehicles in grid (12 per page)
+4. Filters update vehicle list instantly on change
+5. Sort dropdown works (price low/high, newest, oldest)
+6. Search bar searches make/model/title
+7. Clicking a vehicle card navigates to details page
+8. Details page shows all vehicle info, gallery with lightbox, seller contact
+9. "Similar vehicles" shows 4 vehicles from same category
+10. All pages are responsive (mobile-friendly)
+11. Navigation works between all pages
+12. Empty state shows when no vehicles match filters
+13. Favorites persist in localStorage
+14. No console errors on any page
