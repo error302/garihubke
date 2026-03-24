@@ -24,6 +24,8 @@ Phase 4 adds monetization features to enable revenue generation through listing 
 - Basic search visibility
 - Standard placement in listings
 
+**Note:** Basic (Free) tier allows up to 1 active listing at any time. Additional listings require Pro tier or higher.
+
 ### Premium Features
 
 | Feature | Price | Description |
@@ -31,7 +33,7 @@ Phase 4 adds monetization features to enable revenue generation through listing 
 | Featured Listing | KSh 500/week | Top of search results |
 | Verified Seller | KSh 1000/month | Badge on all listings |
 | Premium Placement | KSh 300/week | Top of category page |
-| Extended Duration | KSh 800 | 90-day listing |
+| Extended Duration | KSh 800 | 90-day listing extension |
 
 ### Subscription Packages
 
@@ -95,6 +97,7 @@ enum AdPosition {
 model Subscription {
   id        String   @id @default(cuid())
   userId    String
+  user      User     @relation(fields: [userId], references: [id])
   tier      SubscriptionTier
   startDate DateTime
   endDate   DateTime
@@ -105,6 +108,7 @@ model Subscription {
 model PremiumListing {
   id        String   @id @default(cuid())
   listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id])
   feature   PremiumFeature
   expiresAt DateTime
   createdAt DateTime @default(now())
@@ -112,7 +116,8 @@ model PremiumListing {
 
 model AdCampaign {
   id          String   @id @default(cuid())
-  advertiser  String
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
   position    AdPosition
   imageUrl    String
   clickUrl    String
@@ -157,6 +162,35 @@ model AdCampaign {
 - `AdSidebar` - Display sidebar ads
 - `CampaignStats` - Show ad performance
 - `AdCreator` - Multi-step ad creation wizard
+
+## Payment Flow
+
+1. User clicks upgrade/subscribe button
+2. Redirect to Stripe Checkout with price ID
+3. Stripe webhook confirms payment
+4. Server action updates subscription status
+5. User redirected to dashboard with success message
+
+**Payment Failure Handling:**
+- If payment fails, user is notified via email
+- Subscription remains in "pending" state for 7 days
+- After 7 days, automatically downgraded to free tier
+
+**Subscription Downgrade:**
+- When downgrading from Business (unlimited) to Pro (5 listings), existing listings remain but new listings are blocked until under limit
+
+## Scheduled Jobs
+
+- **Daily at midnight**: Deactivate expired subscriptions, remove expired premium features, end expired ad campaigns
+- **Hourly**: Check ad budgets, pause campaigns when `clicks * CPC >= budget`
+
+## Analytics (Business Tier)
+
+Metrics displayed:
+- Listing views over time
+- Inquiry count
+- Click-through rate
+- Geographic location of viewers
 
 ## Acceptance Criteria
 
