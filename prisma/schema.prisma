@@ -64,3 +64,24 @@ model Favorite {
 
   @@unique([userId, vehicleId])
 }
+
+model Message {
+  id           String   @id @default(cuid())
+  vehicleId    String
+  senderId     String?
+  senderName   String
+  senderEmail  String
+  senderPhone  String?
+  content      String
+  read         Boolean  @default(false)
+  createdAt    DateTime @default(now())
+}
+
+model SavedSearch {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  filters     String
+  createdAt   DateTime @default(now())
+  lastChecked DateTime @default(now())
+}

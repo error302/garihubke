@@ -3,6 +3,7 @@ import { vehicles } from '@/data/vehicles';
 import ImageGallery from '@/components/ImageGallery';
 import SellerCard from '@/components/SellerCard';
 import SimilarVehicles from '@/components/SimilarVehicles';
+import { ContactForm } from '@/components/messaging/ContactForm';
 import { formatPrice } from '@/lib/utils';
 
 interface VehiclePageProps {
@@ -81,8 +82,9 @@ export default async function VehiclePage({ params }: VehiclePageProps) {
         </div>
 
         <div className="lg:col-span-1">
-          <div className="lg:sticky lg:top-24">
+          <div className="lg:sticky lg:top-24 space-y-4">
             <SellerCard seller={vehicle.seller} />
+            <ContactForm vehicleId={vehicle.id} vehicleTitle={vehicle.title} />
           </div>
         </div>
       </div>

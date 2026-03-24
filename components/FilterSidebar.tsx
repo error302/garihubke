@@ -1,6 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import { makes, getModelsForMake } from '@/data/vehicles';
+import { useSession } from 'next-auth/react';
 
 interface FilterSidebarProps {
   filters: {
@@ -11,6 +13,9 @@ interface FilterSidebarProps {
     maxPrice: string;
     yearMin: string;
     yearMax: string;
+    minMileage: string;
+    maxMileage: string;
+    seats: string;
     fuelType: string[];
     transmission: string[];
   };
@@ -26,8 +31,14 @@ const categoryOptions = [
   { value: 'trucks', label: 'Trucks' },
   { value: 'vans', label: 'Vans' },
 ];
+const seatOptions = ['2', '4', '5', '6', '7', '8+'];
 
 export default function FilterSidebar({ filters, onFilterChange }: FilterSidebarProps) {
+  const { data: session } = useSession();
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [saveName, setSaveName] = useState('');
+  const [saveLoading, setSaveLoading] = useState(false);
+
   const handleMakeChange = (make: string) => {
     onFilterChange({ ...filters, make, model: '' });
   };
@@ -55,10 +66,37 @@ export default function FilterSidebar({ filters, onFilterChange }: FilterSidebar
       maxPrice: '',
       yearMin: '',
       yearMax: '',
+      minMileage: '',
+      maxMileage: '',
+      seats: '',
       fuelType: [],
       transmission: [],
     });
   };
+
+  const handleSaveSearch = async () => {
+    if (!saveName.trim()) return;
+    setSaveLoading(true);
+    
+    try {
+      await fetch('/api/saved-searches', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: saveName, filters }),
+      });
+      setShowSaveModal(false);
+      setSaveName('');
+    } catch (err) {
+      console.error('Failed to save search:', err);
+    }
+    
+    setSaveLoading(false);
+  };
+
+  const hasActiveFilters = filters.category || filters.make || filters.model || 
+    filters.minPrice || filters.maxPrice || filters.yearMin || filters.yearMax ||
+    filters.minMileage || filters.maxMileage || filters.seats ||
+    filters.fuelType.length > 0 || filters.transmission.length > 0;
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-md space-y-6">
@@ -146,6 +184,42 @@ export default function FilterSidebar({ filters, onFilterChange }: FilterSidebar
       </div>
 
       <div>
+        <h3 className="font-semibold mb-3">Mileage (km)</h3>
+        <div className="flex gap-2">
+          <input
+            type="number"
+            placeholder="Min"
+            value={filters.minMileage}
+            onChange={(e) => onFilterChange({ ...filters, minMileage: e.target.value })}
+            className="w-full px-3 py-2 border rounded-md text-sm"
+          />
+          <input
+            type="number"
+            placeholder="Max"
+            value={filters.maxMileage}
+            onChange={(e) => onFilterChange({ ...filters, maxMileage: e.target.value })}
+            className="w-full px-3 py-2 border rounded-md text-sm"
+          />
+        </div>
+      </div>
+
+      {filters.category === 'cars' && (
+        <div>
+          <h3 className="font-semibold mb-3">Seats</h3>
+          <select
+            value={filters.seats}
+            onChange={(e) => onFilterChange({ ...filters, seats: e.target.value })}
+            className="w-full px-3 py-2 border rounded-md text-sm"
+          >
+            <option value="">Any</option>
+            {seatOptions.map((seats) => (
+              <option key={seats} value={seats}>{seats} seats</option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      <div>
         <h3 className="font-semibold mb-3">Fuel Type</h3>
         <div className="space-y-2">
           {fuelTypes.map((fuel) => (
@@ -179,12 +253,51 @@ export default function FilterSidebar({ filters, onFilterChange }: FilterSidebar
         </div>
       </div>
 
+      {session && hasActiveFilters && (
+        <button
+          onClick={() => setShowSaveModal(true)}
+          className="w-full px-4 py-2 text-sm bg-primary-600 text-white rounded-md hover:bg-primary-700"
+        >
+          Save This Search
+        </button>
+      )}
+
       <button
         onClick={resetFilters}
         className="w-full px-4 py-2 text-sm text-gray-600 border rounded-md hover:bg-gray-50"
       >
         Reset Filters
       </button>
+
+      {showSaveModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold mb-4">Save Search</h3>
+            <input
+              type="text"
+              placeholder="Search name (e.g., 'Toyota under 2M')"
+              value={saveName}
+              onChange={(e) => setSaveName(e.target.value)}
+              className="w-full px-3 py-2 border rounded-lg mb-4"
+            />
+            <div className="flex gap-3">
+              <button
+                onClick={handleSaveSearch}
+                disabled={saveLoading || !saveName.trim()}
+                className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50"
+              >
+                {saveLoading ? 'Saving...' : 'Save'}
+              </button>
+              <button
+                onClick={() => setShowSaveModal(false)}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

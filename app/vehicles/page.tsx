@@ -31,6 +31,9 @@ function VehiclesContent() {
     maxPrice: searchParams.get('maxPrice') || '',
     yearMin: searchParams.get('yearMin') || '',
     yearMax: searchParams.get('yearMax') || '',
+    minMileage: '',
+    maxMileage: '',
+    seats: '',
     fuelType: [] as string[],
     transmission: [] as string[],
   });
@@ -74,6 +77,12 @@ function VehiclesContent() {
     }
     if (filters.transmission.length > 0) {
       result = result.filter((v) => filters.transmission.includes(v.transmission));
+    }
+    if (filters.minMileage) {
+      result = result.filter((v) => v.mileage >= Number(filters.minMileage));
+    }
+    if (filters.maxMileage) {
+      result = result.filter((v) => v.mileage <= Number(filters.maxMileage));
     }
 
     switch (sortBy) {
@@ -129,6 +138,9 @@ function VehiclesContent() {
       maxPrice: '',
       yearMin: '',
       yearMax: '',
+      minMileage: '',
+      maxMileage: '',
+      seats: '',
       fuelType: [],
       transmission: [],
     });
