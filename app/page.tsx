@@ -36,9 +36,11 @@ export default function Home() {
             </Link>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="flex overflow-x-auto gap-4 sm:gap-6 pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6">
             {featuredVehicles.map((vehicle) => (
-              <VehicleCard key={vehicle.id} vehicle={vehicle} />
+              <div key={vehicle.id} className="flex-shrink-0 w-72 sm:w-80">
+                <VehicleCard vehicle={vehicle} />
+              </div>
             ))}
           </div>
         </div>

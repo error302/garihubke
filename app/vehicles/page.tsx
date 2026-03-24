@@ -14,6 +14,10 @@ const sortOptions = [
   { value: 'oldest', label: 'Oldest First' },
   { value: 'price-low', label: 'Price: Low to High' },
   { value: 'price-high', label: 'Price: High to Low' },
+  { value: 'mileage-low', label: 'Mileage: Low to High' },
+  { value: 'mileage-high', label: 'Mileage: High to Low' },
+  { value: 'year-new', label: 'Year: Newest First' },
+  { value: 'year-old', label: 'Year: Oldest First' },
 ];
 
 function VehiclesContent() {
@@ -23,6 +27,7 @@ function VehiclesContent() {
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState('newest');
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [filters, setFilters] = useState({
     category: searchParams.get('category') || '',
     make: searchParams.get('make') || '',
@@ -98,6 +103,18 @@ function VehiclesContent() {
       case 'price-high':
         result.sort((a, b) => b.price - a.price);
         break;
+      case 'mileage-low':
+        result.sort((a, b) => a.mileage - b.mileage);
+        break;
+      case 'mileage-high':
+        result.sort((a, b) => b.mileage - a.mileage);
+        break;
+      case 'year-new':
+        result.sort((a, b) => b.year - a.year);
+        break;
+      case 'year-old':
+        result.sort((a, b) => a.year - b.year);
+        break;
     }
 
     return result;
@@ -156,7 +173,18 @@ function VehiclesContent() {
 
       <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
         <div className="lg:w-64 flex-shrink-0">
-          <FilterSidebar filters={filters} onFilterChange={handleFilterChange} />
+          <button
+            onClick={() => setShowMobileFilters(!showMobileFilters)}
+            className="lg:hidden w-full mb-4 px-4 py-2 border rounded-lg flex items-center justify-between"
+          >
+            <span>Filters</span>
+            <svg className={`w-5 h-5 transition-transform ${showMobileFilters ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div className={`${showMobileFilters ? 'block' : 'hidden'} lg:block`}>
+            <FilterSidebar filters={filters} onFilterChange={handleFilterChange} />
+          </div>
         </div>
 
         <div className="flex-1">
@@ -164,17 +192,20 @@ function VehiclesContent() {
             <p className="text-gray-600">
               {filteredVehicles.length} vehicle{filteredVehicles.length !== 1 ? 's' : ''} found
             </p>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="px-3 py-2 border rounded-md text-sm w-full sm:w-auto"
-            >
-              {sortOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <label className="text-sm text-gray-500 whitespace-nowrap">Sort by:</label>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="px-3 py-2 border rounded-md text-sm flex-1 sm:flex-none"
+              >
+                {sortOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <VehicleGrid vehicles={paginatedVehicles} onReset={handleResetFilters} />
@@ -222,7 +253,7 @@ function LoadingState() {
       <div className="animate-pulse space-y-8">
         <div className="h-12 bg-gray-200 rounded w-full max-w-2xl mx-auto" />
         <div className="flex gap-8">
-          <div className="w-64 space-y-4">
+          <div className="w-64 space-y-4 hidden lg:block">
             <div className="h-6 bg-gray-200 rounded w-20" />
             <div className="h-10 bg-gray-200 rounded w-full" />
             <div className="h-6 bg-gray-200 rounded w-20" />
