@@ -54,6 +54,7 @@
 3. Sort by mileage (low/high)
 4. Sort by year (new/old)
 5. "Sort by:" label
+6. Favorites count badge in navbar
 
 ## Potential Improvements (Not Bugs)
 - Phase 2 Google OAuth needs credentials
