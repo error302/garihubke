@@ -6,7 +6,6 @@ import { vehicles } from '@/data/vehicles';
 import VehicleGrid from '@/components/VehicleGrid';
 import FilterSidebar from '@/components/FilterSidebar';
 import SearchBar from '@/components/SearchBar';
-import AdSidebar from '@/components/AdSidebar';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -42,6 +41,8 @@ function VehiclesContent() {
     seats: '',
     fuelType: [] as string[],
     transmission: [] as string[],
+    region: searchParams.get('region') || '',
+    city: searchParams.get('city') || '',
   });
 
   const filteredVehicles = useMemo(() => {
@@ -83,6 +84,12 @@ function VehiclesContent() {
     }
     if (filters.transmission.length > 0) {
       result = result.filter((v) => filters.transmission.includes(v.transmission));
+    }
+    if (filters.region) {
+      result = result.filter((v) => v.seller.county === filters.region);
+    }
+    if (filters.city) {
+      result = result.filter((v) => v.seller.city === filters.city);
     }
     if (filters.minMileage) {
       result = result.filter((v) => v.mileage >= Number(filters.minMileage));
@@ -144,6 +151,8 @@ function VehiclesContent() {
     if (newFilters.make) params.set('make', newFilters.make);
     if (newFilters.minPrice) params.set('minPrice', newFilters.minPrice);
     if (newFilters.maxPrice) params.set('maxPrice', newFilters.maxPrice);
+    if (newFilters.region) params.set('region', newFilters.region);
+    if (newFilters.city) params.set('city', newFilters.city);
     router.push(`/vehicles?${params.toString()}`);
   };
 
@@ -161,6 +170,8 @@ function VehiclesContent() {
       seats: '',
       fuelType: [],
       transmission: [],
+      region: '',
+      city: '',
     });
     setSearchQuery('');
     router.push('/vehicles');
@@ -185,7 +196,6 @@ function VehiclesContent() {
           </button>
           <div className={`${showMobileFilters ? 'block' : 'hidden'} lg:block`}>
             <FilterSidebar filters={filters} onFilterChange={handleFilterChange} />
-            <AdSidebar />
           </div>
         </div>
 
