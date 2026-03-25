@@ -8,6 +8,7 @@ import { ContactForm } from '@/components/messaging/ContactForm';
 import { formatPrice } from '@/lib/utils';
 import DeliveryCalculator from '@/components/DeliveryCalculator';
 import { VehicleReviews } from '@/components/reviews/VehicleReviews';
+import { InsuranceCalculator } from '@/components/InsuranceCalculator';
 
 interface VehiclePageProps {
   params: Promise<{ id: string }>;
@@ -115,6 +116,8 @@ export default async function VehiclePage({ params }: VehiclePageProps) {
           </div>
 
           <VehicleReviews vehicleId={vehicle.id} />
+          
+          <InsuranceCalculator vehicle={vehicle} />
         </div>
 
         <div className="lg:col-span-1">
