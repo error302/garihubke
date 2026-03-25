@@ -1,0 +1,57 @@
+import { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { router } from 'expo-router';
+import { authService } from '../../services/auth';
+
+export default function RegisterScreen() {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleRegister = async () => {
+    if (!name || !email || !password) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+    setLoading(true);
+    try {
+      await authService.register(name, email, password);
+      Alert.alert('Success', 'Account created! Please sign in.', [
+        { text: 'OK', onPress: () => router.replace('/(auth)/login') }
+      ]);
+    } catch (error) {
+      Alert.alert('Error', 'Registration failed');
+    }
+    setLoading(false);
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Create Account</Text>
+      <Text style={styles.subtitle}>Join GariHub today</Text>
+      
+      <TextInput style={styles.input} placeholder="Full Name" value={name} onChangeText={setName} />
+      <TextInput style={styles.input} placeholder="Email" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" />
+      <TextInput style={styles.input} placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry />
+      
+      <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={loading}>
+        <Text style={styles.buttonText}>{loading ? 'Creating...' : 'Sign Up'}</Text>
+      </TouchableOpacity>
+      
+      <TouchableOpacity onPress={() => router.back()}>
+        <Text style={styles.link}>Already have an account? Sign in</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#fff' },
+  title: { fontSize: 28, fontWeight: 'bold', marginBottom: 8, textAlign: 'center' },
+  subtitle: { fontSize: 16, color: '#666', marginBottom: 24, textAlign: 'center' },
+  input: { borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 12, marginBottom: 16, fontSize: 16 },
+  button: { backgroundColor: '#2563eb', padding: 16, borderRadius: 8, alignItems: 'center' },
+  buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  link: { color: '#2563eb', marginTop: 16, textAlign: 'center', fontSize: 14 },
+});
