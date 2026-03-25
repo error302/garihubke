@@ -22,6 +22,8 @@ model User {
   subscriptions Subscription[]
   payments      Payment[]
   adCampaigns   AdCampaign[]
+  dealers       Dealer[]
+  dealerMembers DealerMember[]
 }
 
 model Account {
@@ -119,6 +121,7 @@ model Listing {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
   premiumListings  PremiumListing[]
+  dealerInventory  DealerInventory?
 }
 
 model Subscription {
@@ -169,4 +172,73 @@ model AdCampaign {
   isActive     Boolean    @default(true)
   startDate    DateTime
   endDate      DateTime
+}
+
+model Dealer {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  name          String
+  logo          String?
+  description   String?
+  phone         String?
+  email         String?
+  website       String?
+  address       String?
+  city          String?
+  region        String?
+  country       String   @default("Kenya")
+  isVerified    Boolean  @default(false)
+  verifiedAt    DateTime?
+  isDeleted     Boolean  @default(false)
+  isSuspended   Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  members       DealerMember[]
+  inventory     DealerInventory[]
+  apiAccess     DealerApiAccess[]
+  webhooks      DealerWebhook[]
+}
+
+model DealerMember {
+  id        String   @id @default(cuid())
+  dealerId  String
+  dealer    Dealer   @relation(fields: [dealerId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  role      String   @default("STAFF")
+  createdAt DateTime @default(now())
+}
+
+model DealerInventory {
+  id          String   @id @default(cuid())
+  dealerId    String
+  dealer      Dealer   @relation(fields: [dealerId], references: [id])
+  listingId   String   @unique
+  listing     Listing  @relation(fields: [listingId], references: [id])
+  costPrice   Int?
+  stockStatus String   @default("AVAILABLE")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model DealerApiAccess {
+  id          String   @id @default(cuid())
+  dealerId    String
+  dealer      Dealer   @relation(fields: [dealerId], references: [id])
+  apiKeyHash  String   @unique
+  name        String
+  lastUsedAt  DateTime?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+model DealerWebhook {
+  id        String   @id @default(cuid())
+  dealerId  String
+  dealer    Dealer   @relation(fields: [dealerId], references: [id])
+  url       String
+  events    String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
 }
