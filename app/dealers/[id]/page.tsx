@@ -1,5 +1,6 @@
 import { db } from '@/lib/db';
 import VehicleGrid from '@/components/VehicleGrid';
+import { SellerReviews } from '@/components/reviews/SellerReviews';
 import { Vehicle } from '@/types';
 
 export default async function PublicDealerPage({ params }: { params: Promise<{ id: string }> }) {
@@ -68,6 +69,7 @@ export default async function PublicDealerPage({ params }: { params: Promise<{ i
           </div>
         </div>
       </div>
+      <SellerReviews sellerId={id} />
       <h2 className="text-2xl font-bold mb-6">Inventory ({dealer.inventory.length})</h2>
       <VehicleGrid vehicles={vehicles} />
     </div>
