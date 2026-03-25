@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { makes, getModelsForMake } from '@/data/vehicles';
+import { KENYA_COUNTIES, MAJOR_CITIES } from '@/lib/kenya-regions';
 import { useSession } from 'next-auth/react';
 
 interface FilterSidebarProps {
@@ -18,6 +19,8 @@ interface FilterSidebarProps {
     seats: string;
     fuelType: string[];
     transmission: string[];
+    region: string;
+    city: string;
   };
   onFilterChange: (filters: FilterSidebarProps['filters']) => void;
 }
@@ -71,6 +74,8 @@ export default function FilterSidebar({ filters, onFilterChange }: FilterSidebar
       seats: '',
       fuelType: [],
       transmission: [],
+      region: '',
+      city: '',
     });
   };
 
@@ -96,7 +101,8 @@ export default function FilterSidebar({ filters, onFilterChange }: FilterSidebar
   const hasActiveFilters = filters.category || filters.make || filters.model || 
     filters.minPrice || filters.maxPrice || filters.yearMin || filters.yearMax ||
     filters.minMileage || filters.maxMileage || filters.seats ||
-    filters.fuelType.length > 0 || filters.transmission.length > 0;
+    filters.fuelType.length > 0 || filters.transmission.length > 0 ||
+    filters.region || filters.city;
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-md space-y-6">
@@ -251,6 +257,32 @@ export default function FilterSidebar({ filters, onFilterChange }: FilterSidebar
             </label>
           ))}
         </div>
+      </div>
+
+      <div>
+        <h3 className="font-semibold mb-3">Location</h3>
+        <select
+          value={filters.region}
+          onChange={(e) => onFilterChange({ ...filters, region: e.target.value, city: '' })}
+          className="w-full px-3 py-2 border rounded-md text-sm mb-2"
+        >
+          <option value="">All Counties</option>
+          {KENYA_COUNTIES.map(county => (
+            <option key={county} value={county}>{county}</option>
+          ))}
+        </select>
+        {filters.region && MAJOR_CITIES[filters.region] && (
+          <select
+            value={filters.city}
+            onChange={(e) => onFilterChange({ ...filters, city: e.target.value })}
+            className="w-full px-3 py-2 border rounded-md text-sm"
+          >
+            <option value="">All Cities</option>
+            {MAJOR_CITIES[filters.region].map(city => (
+              <option key={city} value={city}>{city}</option>
+            ))}
+          </select>
+        )}
       </div>
 
       {session && hasActiveFilters && (

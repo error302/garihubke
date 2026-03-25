@@ -19,6 +19,13 @@ model User {
   accounts      Account[]
   sessions      Session[]
   favorites     Favorite[]
+  subscriptions Subscription[]
+  payments      Payment[]
+  adCampaigns   AdCampaign[]
+  dealers       Dealer[]
+  dealerMembers DealerMember[]
+  notifications Notification[]
+  reviews        Review[]
 }
 
 model Account {
@@ -115,4 +122,160 @@ model Listing {
   status           String   @default("pending")
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+  premiumListings  PremiumListing[]
+  dealerInventory  DealerInventory?
+}
+
+model Subscription {
+  id                  String             @id @default(cuid())
+  userId              String
+  user                User               @relation(fields: [userId], references: [id])
+  stripeSubscriptionId String?
+  tier                String
+  status              String             @default("PENDING")
+  startDate           DateTime
+  endDate             DateTime
+  createdAt           DateTime           @default(now())
+}
+
+model Payment {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  subscriptionId  String?
+  amount          Int
+  currency        String   @default("KES")
+  stripePaymentId String
+  status          String
+  createdAt       DateTime @default(now())
+}
+
+model PremiumListing {
+  id        String         @id @default(cuid())
+  userId    String
+  listingId String
+  listing   Listing        @relation(fields: [listingId], references: [id])
+  feature   String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model AdCampaign {
+  id           String     @id @default(cuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id])
+  position     String
+  imageUrl     String
+  clickUrl     String
+  budget       Int
+  costPerClick Int        @default(50)
+  clicks       Int        @default(0)
+  impressions  Int        @default(0)
+  isActive     Boolean    @default(true)
+  startDate    DateTime
+  endDate      DateTime
+}
+
+model Dealer {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  name          String
+  logo          String?
+  description   String?
+  phone         String?
+  email         String?
+  website       String?
+  address       String?
+  city          String?
+  region        String?
+  country       String   @default("Kenya")
+  isVerified    Boolean  @default(false)
+  verifiedAt    DateTime?
+  isDeleted     Boolean  @default(false)
+  isSuspended   Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  members       DealerMember[]
+  inventory     DealerInventory[]
+  apiAccess     DealerApiAccess[]
+  webhooks      DealerWebhook[]
+}
+
+model DealerMember {
+  id        String   @id @default(cuid())
+  dealerId  String
+  dealer    Dealer   @relation(fields: [dealerId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  role      String   @default("STAFF")
+  createdAt DateTime @default(now())
+}
+
+model DealerInventory {
+  id          String   @id @default(cuid())
+  dealerId    String
+  dealer      Dealer   @relation(fields: [dealerId], references: [id])
+  listingId   String   @unique
+  listing     Listing  @relation(fields: [listingId], references: [id])
+  costPrice   Int?
+  stockStatus String   @default("AVAILABLE")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model DealerApiAccess {
+  id          String   @id @default(cuid())
+  dealerId    String
+  dealer      Dealer   @relation(fields: [dealerId], references: [id])
+  apiKeyHash  String   @unique
+  name        String
+  lastUsedAt  DateTime?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+model DealerWebhook {
+  id        String   @id @default(cuid())
+  dealerId  String
+  dealer    Dealer   @relation(fields: [dealerId], references: [id])
+  url       String
+  events    String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model DeliveryRate {
+  id        String   @id @default(cuid())
+  county    String   @unique
+  baseFee   Int
+  perKmFee  Int
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  type      String   // message, listing, payment, saved_search
+  title     String
+  body      String
+  link      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  targetType  String   // SELLER, VEHICLE
+  targetId    String
+  rating      Int      // 1-5
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, targetType, targetId])
 }

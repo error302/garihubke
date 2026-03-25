@@ -1,13 +1,47 @@
 import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
 import { vehicles } from '@/data/vehicles';
 import ImageGallery from '@/components/ImageGallery';
 import SellerCard from '@/components/SellerCard';
 import SimilarVehicles from '@/components/SimilarVehicles';
 import { ContactForm } from '@/components/messaging/ContactForm';
 import { formatPrice } from '@/lib/utils';
+import DeliveryCalculator from '@/components/DeliveryCalculator';
+import { VehicleReviews } from '@/components/reviews/VehicleReviews';
 
 interface VehiclePageProps {
   params: Promise<{ id: string }>;
+}
+
+export async function generateMetadata({ params }: VehiclePageProps): Promise<Metadata> {
+  const { id } = await params;
+  const vehicle = vehicles.find((v) => v.id === id);
+
+  if (!vehicle) {
+    return {
+      title: 'Vehicle Not Found - GariHub',
+    };
+  }
+
+  const title = `${vehicle.year} ${vehicle.make} ${vehicle.model} for sale in ${vehicle.seller.city || vehicle.seller.county || 'Kenya'}`;
+  const description = `${vehicle.title} - KES ${vehicle.price.toLocaleString()}. ${vehicle.year} ${vehicle.make} ${vehicle.model} with ${vehicle.mileage.toLocaleString()} km. ${vehicle.description.slice(0, 150)}...`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: vehicle.images[0] ? [{ url: vehicle.images[0] }] : [],
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: vehicle.images[0] ? [vehicle.images[0]] : [],
+    },
+  };
 }
 
 export default async function VehiclePage({ params }: VehiclePageProps) {
@@ -79,11 +113,16 @@ export default async function VehiclePage({ params }: VehiclePageProps) {
               ))}
             </div>
           </div>
+
+          <VehicleReviews vehicleId={vehicle.id} />
         </div>
 
         <div className="lg:col-span-1">
           <div className="lg:sticky lg:top-24 space-y-4">
             <SellerCard seller={vehicle.seller} />
+            {vehicle.seller.county && (
+              <DeliveryCalculator sellerCounty={vehicle.seller.county} />
+            )}
             <ContactForm vehicleId={vehicle.id} vehicleTitle={vehicle.title} />
           </div>
         </div>

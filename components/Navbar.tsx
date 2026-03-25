@@ -6,10 +6,12 @@ import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import NotificationBell from './notifications/NotificationBell';
 
 const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/vehicles', label: 'Vehicles' },
+  { href: '/vehicles/map', label: 'Map' },
   { href: '/sell', label: 'Sell' },
   { href: '/about', label: 'About' },
   { href: '/contact', label: 'Contact' },
@@ -98,6 +100,7 @@ export default function Navbar() {
                     </span>
                   )}
                 </Link>
+                <NotificationBell />
                 <Link
                   href="/dashboard"
                   className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
