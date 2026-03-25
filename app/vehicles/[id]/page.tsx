@@ -5,6 +5,7 @@ import SellerCard from '@/components/SellerCard';
 import SimilarVehicles from '@/components/SimilarVehicles';
 import { ContactForm } from '@/components/messaging/ContactForm';
 import { formatPrice } from '@/lib/utils';
+import DeliveryCalculator from '@/components/DeliveryCalculator';
 
 interface VehiclePageProps {
   params: Promise<{ id: string }>;
@@ -84,6 +85,9 @@ export default async function VehiclePage({ params }: VehiclePageProps) {
         <div className="lg:col-span-1">
           <div className="lg:sticky lg:top-24 space-y-4">
             <SellerCard seller={vehicle.seller} />
+            {vehicle.seller.county && (
+              <DeliveryCalculator sellerCounty={vehicle.seller.county} />
+            )}
             <ContactForm vehicleId={vehicle.id} vehicleTitle={vehicle.title} />
           </div>
         </div>
