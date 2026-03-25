@@ -25,6 +25,7 @@ model User {
   dealers       Dealer[]
   dealerMembers DealerMember[]
   notifications Notification[]
+  reviews        Review[]
 }
 
 model Account {
@@ -264,4 +265,17 @@ model Notification {
   link      String?
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  targetType  String   // SELLER, VEHICLE
+  targetId    String
+  rating      Int      // 1-5
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, targetType, targetId])
 }
