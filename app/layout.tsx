@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AuthProvider from "@/components/AuthProvider";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,14 +20,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <AuthProvider>
-          <Navbar />
-          <main className="min-h-screen">{children}</main>
-          <Footer />
-          <WhatsAppButton />
-        </AuthProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <AuthProvider>
+            <Navbar />
+            <main className="min-h-screen">{children}</main>
+            <Footer />
+            <WhatsAppButton />
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
