@@ -37,11 +37,14 @@ model Dealer {
   country       String @default("Kenya")
   isVerified    Boolean @default(false)
   verifiedAt    DateTime?
+  isDeleted     Boolean @default(false)
+  isSuspended   Boolean @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   members       DealerMember[]
   inventory     DealerInventory[]
   apiAccess     DealerApiAccess[]
+  webhooks      DealerWebhook[]
 }
 
 enum DealerRole {
@@ -64,10 +67,10 @@ model DealerInventory {
   id          String   @id @default(cuid())
   dealerId    String
   dealer      Dealer   @relation(fields: [dealerId], references: [id])
-  listingId   String
+  listingId   String   @unique
   listing     Listing  @relation(fields: [listingId], references: [id])
   costPrice   Int?
-  stockStatus String @default("available")
+  stockStatus StockStatus @default(AVAILABLE)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
