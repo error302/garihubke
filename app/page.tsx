@@ -45,10 +45,23 @@ export default function Home() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="text-lg sm:text-xl text-gray-600 mb-6 sm:mb-8"
+            className="text-lg sm:text-xl text-gray-600 mb-4"
           >
             Browse thousands of cars, motorbikes, trucks, and vans from trusted sellers
           </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+            className="mb-6 sm:mb-8"
+          >
+            <Link
+              href="/calculator"
+              className="text-primary-600 hover:text-primary-700 font-medium underline"
+            >
+              Calculate Import Costs
+            </Link>
+          </motion.div>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
