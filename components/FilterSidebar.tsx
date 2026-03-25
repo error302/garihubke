@@ -19,6 +19,9 @@ interface FilterSidebarProps {
     seats: string;
     fuelType: string[];
     transmission: string[];
+    bodyType: string;
+    color: string;
+    engineSize: string;
     region: string;
     city: string;
   };
@@ -27,6 +30,42 @@ interface FilterSidebarProps {
 
 const fuelTypes = ['petrol', 'diesel', 'electric', 'hybrid'];
 const transmissions = ['manual', 'automatic'];
+
+const bodyTypes = [
+  { value: '', label: 'All Body Types' },
+  { value: 'sedan', label: 'Sedan' },
+  { value: 'suv', label: 'SUV' },
+  { value: 'hatchback', label: 'Hatchback' },
+  { value: 'coupe', label: 'Coupe' },
+  { value: 'wagon', label: 'Wagon' },
+  { value: 'pickup', label: 'Pickup' },
+  { value: 'van', label: 'Van' },
+  { value: 'truck', label: 'Truck' },
+  { value: 'bus', label: 'Bus' },
+];
+
+const colors = [
+  { value: '', label: 'All Colors' },
+  { value: 'white', label: 'White' },
+  { value: 'black', label: 'Black' },
+  { value: 'silver', label: 'Silver' },
+  { value: 'blue', label: 'Blue' },
+  { value: 'red', label: 'Red' },
+  { value: 'green', label: 'Green' },
+  { value: 'yellow', label: 'Yellow' },
+  { value: 'brown', label: 'Brown' },
+  { value: 'other', label: 'Other' },
+];
+
+const engineSizes = [
+  { value: '', label: 'Any Engine' },
+  { value: 'below_1500', label: 'Below 1500cc' },
+  { value: '1500_2000', label: '1500 - 2000cc' },
+  { value: '2000_3000', label: '2000 - 3000cc' },
+  { value: '3000_4000', label: '3000 - 4000cc' },
+  { value: 'above_4000', label: 'Above 4000cc' },
+];
+
 const categoryOptions = [
   { value: '', label: 'All Categories' },
   { value: 'cars', label: 'Cars' },
@@ -74,6 +113,9 @@ export default function FilterSidebar({ filters, onFilterChange }: FilterSidebar
       seats: '',
       fuelType: [],
       transmission: [],
+      bodyType: '',
+      color: '',
+      engineSize: '',
       region: '',
       city: '',
     });
@@ -102,6 +144,7 @@ export default function FilterSidebar({ filters, onFilterChange }: FilterSidebar
     filters.minPrice || filters.maxPrice || filters.yearMin || filters.yearMax ||
     filters.minMileage || filters.maxMileage || filters.seats ||
     filters.fuelType.length > 0 || filters.transmission.length > 0 ||
+    filters.bodyType || filters.color || filters.engineSize ||
     filters.region || filters.city;
 
   return (
@@ -257,6 +300,45 @@ export default function FilterSidebar({ filters, onFilterChange }: FilterSidebar
             </label>
           ))}
         </div>
+      </div>
+
+      <div>
+        <h3 className="font-semibold mb-3">Body Type</h3>
+        <select
+          value={filters.bodyType}
+          onChange={(e) => onFilterChange({ ...filters, bodyType: e.target.value })}
+          className="w-full px-3 py-2 border rounded-md text-sm"
+        >
+          {bodyTypes.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <h3 className="font-semibold mb-3">Color</h3>
+        <select
+          value={filters.color}
+          onChange={(e) => onFilterChange({ ...filters, color: e.target.value })}
+          className="w-full px-3 py-2 border rounded-md text-sm"
+        >
+          {colors.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <h3 className="font-semibold mb-3">Engine Size</h3>
+        <select
+          value={filters.engineSize}
+          onChange={(e) => onFilterChange({ ...filters, engineSize: e.target.value })}
+          className="w-full px-3 py-2 border rounded-md text-sm"
+        >
+          {engineSizes.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
       </div>
 
       <div>

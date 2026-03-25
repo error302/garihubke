@@ -41,6 +41,9 @@ function VehiclesContent() {
     seats: '',
     fuelType: [] as string[],
     transmission: [] as string[],
+    bodyType: '',
+    color: '',
+    engineSize: '',
     region: searchParams.get('region') || '',
     city: searchParams.get('city') || '',
   });
@@ -170,6 +173,9 @@ function VehiclesContent() {
       seats: '',
       fuelType: [],
       transmission: [],
+      bodyType: '',
+      color: '',
+      engineSize: '',
       region: '',
       city: '',
     });
