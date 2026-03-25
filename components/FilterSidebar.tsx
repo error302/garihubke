@@ -25,6 +25,7 @@ interface FilterSidebarProps {
     engineSize: string;
     region: string;
     city: string;
+    sortBy: string;
   };
   onFilterChange: (filters: FilterSidebarProps['filters']) => void;
 }
@@ -76,6 +77,14 @@ const categoryOptions = [
 ];
 const seatOptions = ['2', '4', '5', '6', '7', '8+'];
 
+const sortOptions = [
+  { value: 'newest', label: 'Newest First' },
+  { value: 'price_asc', label: 'Price: Low to High' },
+  { value: 'price_desc', label: 'Price: High to Low' },
+  { value: 'mileage_asc', label: 'Mileage: Low to High' },
+  { value: 'mileage_desc', label: 'Mileage: High to Low' },
+];
+
 export default function FilterSidebar({ filters, onFilterChange }: FilterSidebarProps) {
   const { data: session } = useSession();
   const [showSaveModal, setShowSaveModal] = useState(false);
@@ -119,6 +128,7 @@ export default function FilterSidebar({ filters, onFilterChange }: FilterSidebar
       engineSize: '',
       region: '',
       city: '',
+      sortBy: 'newest',
     });
   };
 
@@ -146,10 +156,30 @@ export default function FilterSidebar({ filters, onFilterChange }: FilterSidebar
     filters.minMileage || filters.maxMileage || filters.seats ||
     filters.fuelType.length > 0 || filters.transmission.length > 0 ||
     filters.bodyType || filters.color || filters.engineSize ||
-    filters.region || filters.city;
+    filters.region || filters.city || (filters.sortBy && filters.sortBy !== 'newest');
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-md space-y-6">
+      <button
+        onClick={resetFilters}
+        className="w-full px-4 py-2 text-sm text-red-600 border border-red-200 rounded-md hover:bg-red-50 font-medium"
+      >
+        Clear All Filters
+      </button>
+
+      <div>
+        <h3 className="font-semibold mb-3">Sort By</h3>
+        <select
+          value={filters.sortBy || 'newest'}
+          onChange={(e) => onFilterChange({ ...filters, sortBy: e.target.value })}
+          className="w-full px-3 py-2 border rounded-md text-sm"
+        >
+          {sortOptions.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
+      </div>
+
       <div>
         <h3 className="font-semibold mb-3">Category</h3>
         <select
