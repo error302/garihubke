@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { makes, getModelsForMake } from '@/data/vehicles';
 import { KENYA_COUNTIES, MAJOR_CITIES } from '@/lib/kenya-regions';
 import { useSession } from 'next-auth/react';
+import { PriceRangeSlider } from './PriceRangeSlider';
 
 interface FilterSidebarProps {
   filters: {
@@ -164,22 +165,16 @@ export default function FilterSidebar({ filters, onFilterChange }: FilterSidebar
 
       <div>
         <h3 className="font-semibold mb-3">Price Range</h3>
-        <div className="flex gap-2">
-          <input
-            type="number"
-            placeholder="Min"
-            value={filters.minPrice}
-            onChange={(e) => onFilterChange({ ...filters, minPrice: e.target.value })}
-            className="w-full px-3 py-2 border rounded-md text-sm"
-          />
-          <input
-            type="number"
-            placeholder="Max"
-            value={filters.maxPrice}
-            onChange={(e) => onFilterChange({ ...filters, maxPrice: e.target.value })}
-            className="w-full px-3 py-2 border rounded-md text-sm"
-          />
-        </div>
+        <PriceRangeSlider
+          min={0}
+          max={20000000}
+          value={[Number(filters.minPrice) || 0, Number(filters.maxPrice) || 20000000]}
+          onChange={([min, max]) => onFilterChange({ 
+            ...filters, 
+            minPrice: min.toString(), 
+            maxPrice: max.toString() 
+          })}
+        />
       </div>
 
       <div>
