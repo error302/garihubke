@@ -7,34 +7,18 @@ const plans = [
   {
     tier: 'Basic',
     price: 0,
-    features: [
-      '1 active listing',
-      '30-day duration',
-      'Up to 10 photos',
-      'Basic search visibility',
-    ],
+    features: ['1 active listing', '30-day duration', 'Basic search visibility'],
   },
   {
     tier: 'Pro',
     price: 2500,
-    features: [
-      '5 active listings',
-      'Featured placement',
-      'Verified badge',
-      'Priority support',
-    ],
+    features: ['5 active listings', 'Featured placement', 'Verified badge'],
     isPopular: true,
   },
   {
     tier: 'Business',
     price: 5000,
-    features: [
-      'Unlimited listings',
-      'Premium placement',
-      'Verified badge',
-      'Analytics dashboard',
-      'Dedicated support',
-    ],
+    features: ['Unlimited listings', 'Premium placement', 'Verified badge', 'Analytics'],
   },
 ];
 
@@ -66,7 +50,7 @@ export default function PricingPage() {
     <div className="max-w-6xl mx-auto px-4 py-16">
       <h1 className="text-4xl font-bold text-center mb-4">Choose Your Plan</h1>
       <p className="text-center text-gray-600 mb-12">
-        Select the perfect plan for selling vehicles on GariHub
+        Select the perfect plan for your needs
       </p>
       <div className="grid md:grid-cols-3 gap-8">
         {plans.map((plan) => (

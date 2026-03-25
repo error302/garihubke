@@ -1,58 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { db } from '@/lib/db';
 
-// Get ads (public for serving, authenticated for user's own)
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const position = searchParams.get('position');
-
-  const where: any = { isActive: true };
-  if (position) {
-    where.position = position;
-  }
-
-  const ads = await db.adCampaign.findMany({
-    where,
-    orderBy: { startDate: 'desc' },
-  });
-
+// Get all active ads
+export async function GET() {
+  // TODO: Fetch from database
+  const ads = [
+    {
+      id: '1',
+      position: 'HOMEPAGE_BANNER',
+      imageUrl: 'https://picsum.photos/728/90',
+      clickUrl: 'https://example.com',
+      impressions: 1000,
+      clicks: 50,
+      isActive: true,
+    },
+  ];
   return NextResponse.json({ ads });
 }
 
 // Create new ad campaign
 export async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session?.user?.id) {
+  if (!session?.user?.email) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const body = await req.json();
-  const { position, imageUrl, clickUrl, budget, startDate, endDate } = body;
+  const { position, imageUrl, clickUrl, budget } = body;
 
-  const ad = await db.adCampaign.create({
-    data: {
-      userId: session.user.id,
-      position,
-      imageUrl,
-      clickUrl,
-      budget: Number(budget),
-      startDate: new Date(startDate),
-      endDate: new Date(endDate),
-    },
-  });
-
-  return NextResponse.json({ ad }, { status: 201 });
+  // TODO: Validate and save to database
+  return NextResponse.json({ message: 'Ad created', id: 'new-ad-id' }, { status: 201 });
 }
 
 // Track ad click
 export async function PUT(req: NextRequest) {
   const { adId } = await req.json();
 
-  await db.adCampaign.update({
-    where: { id: adId },
-    data: { clicks: { increment: 1 } },
-  });
-
-  return NextResponse.json({ success: true });
+  // TODO: Increment click count
+  return NextResponse.json({ message: 'Click tracked' });
 }
