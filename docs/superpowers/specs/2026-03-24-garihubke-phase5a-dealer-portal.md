@@ -56,7 +56,7 @@ model DealerMember {
   dealer    Dealer   @relation(fields: [dealerId], references: [id])
   userId    String
   user      User     @relation(fields: [userId], references: [id])
-  role      String   @default("STAFF")
+  role      DealerRole @default(STAFF)
   createdAt DateTime @default(now())
 }
 
@@ -76,11 +76,28 @@ model DealerApiAccess {
   id          String   @id @default(cuid())
   dealerId    String
   dealer      Dealer   @relation(fields: [dealerId], references: [id])
-  apiKey      String   @unique
+  apiKeyHash  String   @unique
   name        String
   lastUsedAt  DateTime?
   isActive    Boolean @default(true)
   createdAt   DateTime @default(now())
+}
+
+enum StockStatus {
+  AVAILABLE
+  SOLD
+  RESERVED
+  PENDING
+}
+
+model DealerWebhook {
+  id        String   @id @default(cuid())
+  dealerId  String
+  dealer    Dealer   @relation(fields: [dealerId], references: [id])
+  url       String
+  events    String   // Comma-separated events
+  isActive  Boolean @default(true)
+  createdAt DateTime @default(now())
 }
 ```
 
@@ -136,6 +153,7 @@ model DealerApiAccess {
 ## API Endpoints
 
 ### Dealer Management
+- `GET /api/dealers` - List all dealers (with search/filter)
 - `POST /api/dealers` - Register as dealer
 - `GET /api/dealers/:id` - Get dealer info
 - `PUT /api/dealers/:id` - Update dealer info
@@ -160,7 +178,107 @@ model DealerApiAccess {
 - `GET /api/dealers/:id/webhooks` - List webhooks
 - `POST /api/dealers/:id/webhooks` - Create webhook
 
-## CSV Upload Format
+## Permissions Matrix
+
+| Action | ADMIN | MANAGER | STAFF |
+|--------|-------|---------|-------|
+| Manage inventory (CRUD) | ✅ | ✅ | ✅ |
+| View inventory | ✅ | ✅ | ✅ |
+| Upload CSV | ✅ | ✅ | ❌ |
+| Invite members | ✅ | ❌ | ❌ |
+| Remove members | ✅ | ❌ | ❌ |
+| Update roles | ✅ | ❌ | ❌ |
+| Manage API keys | ✅ | ❌ | ❌ |
+| Manage webhooks | ✅ | ❌ | ❌ |
+| Edit dealer profile | ✅ | ✅ | ❌ |
+| View stats | ✅ | ✅ | ✅ |
+
+## CSV Upload Validation Rules
+
+| Column | Type | Required | Constraints |
+|--------|------|----------|-------------|
+| title | string | Yes | Max 100 chars |
+| make | string | Yes | Must match existing makes list |
+| model | string | Yes | Max 50 chars |
+| year | int | Yes | 1900-current year + 1 |
+| price | int | Yes | Min 50000, Max 100000000 |
+| mileage | int | Yes | Min 0, Max 10000000 |
+| fuelType | string | Yes | petrol, diesel, electric, hybrid |
+| transmission | string | Yes | manual, automatic |
+| description | string | Yes | Max 2000 chars |
+| features | string | Yes | Comma-separated, max 20 items |
+| images | string | Yes | Comma-separated URLs, max 10 |
+| sellerName | string | Yes | Auto-filled from dealer name |
+| sellerPhone | string | Yes | Auto-filled from dealer phone |
+| sellerLocation | string | Yes | Auto-filled from dealer city |
+
+**CSV Constraints:**
+- Max file size: 5MB
+- Max rows: 500 per upload
+- Encoding: UTF-8
+- Error handling: Validate all rows first. If any row fails, no rows are saved. Errors reported per-row.
+
+## CSV Image Handling
+
+- Images column contains comma-separated URLs
+- URLs must be valid HTTP/HTTPS endpoints
+- Max 10 images per listing
+- Images are downloaded and stored during upload
+- Invalid URLs are flagged in error report
+
+## Webhook Events
+
+Supported events:
+- `listing.created` - New listing added to inventory
+- `listing.updated` - Listing modified
+- `listing.sold` - Listing marked as sold
+- `inquiry.received` - New inquiry for dealer's listing
+- `inventory.low_stock` - Inventory below threshold
+
+## API Security
+
+**Rate Limiting:**
+- 100 requests per minute per API key
+- 1000 requests per hour per API key
+- Exceeding limits returns 429 Too Many Requests
+
+**API Key Storage:**
+- Keys stored as hashed values
+- Only shown once on creation
+- Keys can be named for identification
+
+## Dealer Deletion/Suspension
+
+**Soft Delete:**
+- Dealer marked as `deleted: true`
+- Inventory remains but hidden from public
+- Team members deactivated
+- API keys revoked
+
+**Suspension:**
+- Admin can suspend dealer
+- Listings hidden from public
+- Team members retain access
+- API access disabled
+
+## Edge Cases
+
+| Scenario | Handling |
+|----------|----------|
+| Duplicate CSV rows | Dedup by title+make+model+year+price |
+| Concurrent uploads | Queue uploads, process sequentially |
+| API key leak | Revoke immediately, generate new key |
+| Member invites existing dealer admin | Allowed - user can be in multiple dealers |
+| Dealer lists other dealer's listing | Not allowed - unique constraint on listingId |
+| Empty CSV file | Error - file must contain data rows |
+| Non-UTF8 encoding | Error - file must be UTF-8 |
+
+## Stock Status Values
+
+- `available` - Listed and available for sale
+- `sold` - Vehicle has been sold
+- `reserved` - Deposit received, pending sale
+- `pending` - Under review, not yet public
 
 ```csv
 title,make,model,year,price,mileage,fuelType,transmission,description,features,images,sellerName,sellerPhone,sellerLocation
