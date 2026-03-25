@@ -10,7 +10,11 @@
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "@playwright/mcp": "^0.0.68",
     "@prisma/client": "^5.22.0",
+    "@stripe/stripe-js": "^8.11.0",
+    "axios": "^1.13.6",
     "bcryptjs": "^2.4.3",
     "clsx": "^2.1.1",
     "framer-motion": "^12.38.0",
@@ -33,5 +37,23 @@
     "prisma": "^5.22.0",
     "tailwindcss": "^3.4.7",
     "typescript": "5.5.4"
-  }
+  },
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "lib": "lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/error302/garihubke.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/error302/garihubke/issues"
+  },
+  "homepage": "https://github.com/error302/garihubke#readme"
 }

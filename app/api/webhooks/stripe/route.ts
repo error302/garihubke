@@ -13,8 +13,7 @@ export async function POST(req: NextRequest) {
 
   let event;
   try {
-    const stripe = getStripe();
-    event = stripe.webhooks.constructEvent(
+    event = getStripe().webhooks.constructEvent(
       body,
       signature,
       process.env.STRIPE_WEBHOOK_SECRET || ''
@@ -45,7 +44,7 @@ export async function POST(req: NextRequest) {
     }
 
     case 'invoice.payment_succeeded': {
-      const invoice = event.data.object as any;
+      const invoice = event.data.object as { subscription?: string };
       const subscriptionId = invoice.subscription;
 
       if (subscriptionId) {

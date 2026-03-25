@@ -4,21 +4,25 @@ let _stripe: Stripe | null = null;
 
 export function getStripe(): Stripe {
   if (!_stripe) {
-    const key = process.env.STRIPE_SECRET_KEY;
-    if (!key) {
+    if (!process.env.STRIPE_SECRET_KEY) {
       throw new Error('STRIPE_SECRET_KEY is not set');
     }
-    _stripe = new Stripe(key, {
+    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
       apiVersion: '2026-02-25.clover',
     });
   }
   return _stripe;
 }
 
-// Pricing configuration (in KSh - amount in cents)
+export const stripe = {
+  get isReady() {
+    return !!process.env.STRIPE_SECRET_KEY;
+  }
+} as unknown as Stripe & { isReady: boolean };
+
 export const PRICES = {
-  PRO_MONTHLY: 250000, // KSh 2,500 in cents
-  BUSINESS_MONTHLY: 500000, // KSh 5,000 in cents
+  PRO_MONTHLY: 250000,
+  BUSINESS_MONTHLY: 500000,
 };
 
 export const PRICE_IDS = {
