@@ -253,7 +253,7 @@ Supported events:
 ## Dealer Deletion/Suspension
 
 **Soft Delete:**
-- Dealer marked as `deleted: true`
+- Dealer marked as `isDeleted: true`
 - Inventory remains but hidden from public
 - Team members deactivated
 - API keys revoked
