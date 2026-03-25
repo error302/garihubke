@@ -6,6 +6,10 @@ export interface Seller {
   name: string;
   phone: string;
   location: string;
+  city?: string;
+  county?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface Vehicle {
