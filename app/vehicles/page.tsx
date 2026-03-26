@@ -26,7 +26,6 @@ function VehiclesContent() {
   
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortBy, setSortBy] = useState('newest');
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [filters, setFilters] = useState({
     category: searchParams.get('category') || '',
@@ -41,8 +40,12 @@ function VehiclesContent() {
     seats: '',
     fuelType: [] as string[],
     transmission: [] as string[],
+    bodyType: '',
+    color: '',
+    engineSize: '',
     region: searchParams.get('region') || '',
     city: searchParams.get('city') || '',
+    sortBy: 'newest',
   });
 
   const filteredVehicles = useMemo(() => {
@@ -98,7 +101,7 @@ function VehiclesContent() {
       result = result.filter((v) => v.mileage <= Number(filters.maxMileage));
     }
 
-    switch (sortBy) {
+    switch (filters.sortBy) {
       case 'newest':
         result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         break;
@@ -126,7 +129,7 @@ function VehiclesContent() {
     }
 
     return result;
-  }, [searchQuery, filters, sortBy]);
+  }, [searchQuery, filters]);
 
   const totalPages = Math.ceil(filteredVehicles.length / ITEMS_PER_PAGE);
   const paginatedVehicles = filteredVehicles.slice(
@@ -136,7 +139,7 @@ function VehiclesContent() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, filters, sortBy]);
+  }, [searchQuery, filters]);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -170,8 +173,12 @@ function VehiclesContent() {
       seats: '',
       fuelType: [],
       transmission: [],
+      bodyType: '',
+      color: '',
+      engineSize: '',
       region: '',
       city: '',
+      sortBy: 'newest',
     });
     setSearchQuery('');
     router.push('/vehicles');
@@ -207,8 +214,8 @@ function VehiclesContent() {
             <div className="flex items-center gap-2 w-full sm:w-auto">
               <label className="text-sm text-gray-500 whitespace-nowrap">Sort by:</label>
               <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
+                value={filters.sortBy || 'newest'}
+                onChange={(e) => handleFilterChange({ ...filters, sortBy: e.target.value })}
                 className="px-3 py-2 border rounded-md text-sm flex-1 sm:flex-none"
               >
                 {sortOptions.map((option) => (

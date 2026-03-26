@@ -30,6 +30,9 @@ export const vehicles: Vehicle[] = [
     features: ['Sunroof', 'Leather Seats', 'Reverse Camera', 'Alloy Wheels', 'Bluetooth', 'GPS'],
     category: 'cars',
     createdAt: '2026-03-20T10:00:00Z',
+    bodyType: 'suv',
+    color: 'white',
+    engineSize: 2700,
   },
   {
     id: '2',
@@ -58,6 +61,9 @@ export const vehicles: Vehicle[] = [
     features: ['Air Conditioning', 'Power Windows', 'ABS', 'Bluetooth'],
     category: 'cars',
     createdAt: '2026-03-19T14:30:00Z',
+    bodyType: 'sedan',
+    color: 'silver',
+    engineSize: 1800,
   },
   {
     id: '3',
@@ -86,6 +92,9 @@ export const vehicles: Vehicle[] = [
     features: ['Power Steering', 'Air Conditioning', 'Radio/CD'],
     category: 'vans',
     createdAt: '2026-03-18T09:15:00Z',
+    bodyType: 'van',
+    color: 'white',
+    engineSize: 2700,
   },
   {
     id: '4',
@@ -114,6 +123,8 @@ export const vehicles: Vehicle[] = [
     features: ['Digital Dashboard', 'LED Lights', 'Disc Brakes'],
     category: 'motorbikes',
     createdAt: '2026-03-17T16:45:00Z',
+    color: 'green',
+    engineSize: 400,
   },
   {
     id: '5',
@@ -142,6 +153,9 @@ export const vehicles: Vehicle[] = [
     features: ['4x4', 'Tow Bar', 'Leather Seats', 'Reverse Camera', 'Cruise Control'],
     category: 'cars',
     createdAt: '2026-03-16T11:20:00Z',
+    bodyType: 'pickup',
+    color: 'black',
+    engineSize: 2500,
   },
   {
     id: '6',
@@ -170,6 +184,9 @@ export const vehicles: Vehicle[] = [
     features: ['7 Seats', 'Air Conditioning', 'Power Windows', 'Alloy Wheels'],
     category: 'cars',
     createdAt: '2026-03-15T08:30:00Z',
+    bodyType: 'wagon',
+    color: 'silver',
+    engineSize: 1800,
   },
   {
     id: '7',
@@ -198,6 +215,8 @@ export const vehicles: Vehicle[] = [
     features: ['Digital Instrument', 'LED Lights', 'Slipper Clutch'],
     category: 'motorbikes',
     createdAt: '2026-03-14T13:00:00Z',
+    color: 'black',
+    engineSize: 700,
   },
   {
     id: '8',
@@ -226,6 +245,9 @@ export const vehicles: Vehicle[] = [
     features: ['Cargo Bed', 'Power Steering', 'Air Brakes'],
     category: 'trucks',
     createdAt: '2026-03-13T10:45:00Z',
+    bodyType: 'truck',
+    color: 'white',
+    engineSize: 4000,
   },
   {
     id: '9',
@@ -254,6 +276,9 @@ export const vehicles: Vehicle[] = [
     features: ['Panoramic Roof', '4WD', 'Leather Seats', 'Navigation', '360 Camera'],
     category: 'cars',
     createdAt: '2026-03-12T15:30:00Z',
+    bodyType: 'suv',
+    color: 'black',
+    engineSize: 2500,
   },
   {
     id: '10',
@@ -282,6 +307,8 @@ export const vehicles: Vehicle[] = [
     features: ['Start Button', 'Digital Dashboard', 'Under-seat Storage'],
     category: 'motorbikes',
     createdAt: '2026-03-11T09:00:00Z',
+    color: 'white',
+    engineSize: 150,
   },
   {
     id: '11',
@@ -310,6 +337,9 @@ export const vehicles: Vehicle[] = [
     features: ['Leather Seats', 'Sunroof', 'Premium Audio', 'Navigation', 'Heated Seats'],
     category: 'cars',
     createdAt: '2026-03-10T14:20:00Z',
+    bodyType: 'sedan',
+    color: 'white',
+    engineSize: 2000,
   },
   {
     id: '12',
@@ -338,6 +368,9 @@ export const vehicles: Vehicle[] = [
     features: ['4x4', 'Sports Bar', 'Alloy Wheels', 'Tow Bar', 'Bed Liner'],
     category: 'cars',
     createdAt: '2026-03-09T11:15:00Z',
+    bodyType: 'pickup',
+    color: 'blue',
+    engineSize: 3200,
   },
   {
     id: '13',
@@ -366,6 +399,9 @@ export const vehicles: Vehicle[] = [
     features: ['8 Seats', 'Air Conditioning', 'Power Windows', 'Radio'],
     category: 'vans',
     createdAt: '2026-03-08T08:45:00Z',
+    bodyType: 'van',
+    color: 'silver',
+    engineSize: 2000,
   },
   {
     id: '14',
@@ -394,6 +430,8 @@ export const vehicles: Vehicle[] = [
     features: ['Digital Instrument', 'LED DRLs', 'Disc Brakes'],
     category: 'motorbikes',
     createdAt: '2026-03-07T16:00:00Z',
+    color: 'red',
+    engineSize: 200,
   },
   {
     id: '15',
@@ -422,6 +460,9 @@ export const vehicles: Vehicle[] = [
     features: ['Cargo Body', 'Power Steering', 'Air Conditioning'],
     category: 'trucks',
     createdAt: '2026-03-06T12:30:00Z',
+    bodyType: 'truck',
+    color: 'white',
+    engineSize: 4000,
   },
   {
     id: '16',
@@ -450,6 +491,9 @@ export const vehicles: Vehicle[] = [
     features: ['Sunroof', 'Leather Seats', 'Navigation', 'Bose Audio', 'Blind Spot Monitor'],
     category: 'cars',
     createdAt: '2026-03-05T10:00:00Z',
+    bodyType: 'suv',
+    color: 'red',
+    engineSize: 2500,
   },
   {
     id: '17',
@@ -478,6 +522,9 @@ export const vehicles: Vehicle[] = [
     features: ['Power Steering', 'Radio', 'Cargo Space'],
     category: 'vans',
     createdAt: '2026-03-04T14:45:00Z',
+    bodyType: 'van',
+    color: 'white',
+    engineSize: 1500,
   },
   {
     id: '18',
@@ -506,6 +553,9 @@ export const vehicles: Vehicle[] = [
     features: ['Leather Seats', 'Sunroof', 'Navigation', 'Parking Sensors', 'Climate Control'],
     category: 'cars',
     createdAt: '2026-03-03T09:30:00Z',
+    bodyType: 'sedan',
+    color: 'black',
+    engineSize: 2000,
   },
   {
     id: '19',
@@ -534,6 +584,8 @@ export const vehicles: Vehicle[] = [
     features: ['WP Suspension', 'ByBre Brakes', 'TFT Display', 'LED Lights', 'Quick shifter'],
     category: 'motorbikes',
     createdAt: '2026-03-02T15:15:00Z',
+    color: 'red',
+    engineSize: 390,
   },
   {
     id: '20',
@@ -562,6 +614,9 @@ export const vehicles: Vehicle[] = [
     features: ['High Roof', 'Cargo Area', 'Power Steering', 'Air Conditioning'],
     category: 'vans',
     createdAt: '2026-03-01T11:00:00Z',
+    bodyType: 'van',
+    color: 'silver',
+    engineSize: 2200,
   },
 ];
 

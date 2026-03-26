@@ -1,0 +1,10 @@
+# Force GitHub language stats to be more accurate
+*.css linguist-vendored
+*.scss linguist-vendored
+*.js linguist-vendored
+*.mjs linguist-vendored
+*.json linguist-vendored
+*.md linguist-documentation
+
+# Mobile app - exclude from main language stats
+mobile/** linguist-vendored

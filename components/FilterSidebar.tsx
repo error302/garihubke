@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { makes, getModelsForMake } from '@/data/vehicles';
 import { KENYA_COUNTIES, MAJOR_CITIES } from '@/lib/kenya-regions';
 import { useSession } from 'next-auth/react';
+import { PriceRangeSlider } from './PriceRangeSlider';
 
 interface FilterSidebarProps {
   filters: {
@@ -19,14 +20,54 @@ interface FilterSidebarProps {
     seats: string;
     fuelType: string[];
     transmission: string[];
+    bodyType: string;
+    color: string;
+    engineSize: string;
     region: string;
     city: string;
+    sortBy: string;
   };
   onFilterChange: (filters: FilterSidebarProps['filters']) => void;
 }
 
 const fuelTypes = ['petrol', 'diesel', 'electric', 'hybrid'];
 const transmissions = ['manual', 'automatic'];
+
+const bodyTypes = [
+  { value: '', label: 'All Body Types' },
+  { value: 'sedan', label: 'Sedan' },
+  { value: 'suv', label: 'SUV' },
+  { value: 'hatchback', label: 'Hatchback' },
+  { value: 'coupe', label: 'Coupe' },
+  { value: 'wagon', label: 'Wagon' },
+  { value: 'pickup', label: 'Pickup' },
+  { value: 'van', label: 'Van' },
+  { value: 'truck', label: 'Truck' },
+  { value: 'bus', label: 'Bus' },
+];
+
+const colors = [
+  { value: '', label: 'All Colors' },
+  { value: 'white', label: 'White' },
+  { value: 'black', label: 'Black' },
+  { value: 'silver', label: 'Silver' },
+  { value: 'blue', label: 'Blue' },
+  { value: 'red', label: 'Red' },
+  { value: 'green', label: 'Green' },
+  { value: 'yellow', label: 'Yellow' },
+  { value: 'brown', label: 'Brown' },
+  { value: 'other', label: 'Other' },
+];
+
+const engineSizes = [
+  { value: '', label: 'Any Engine' },
+  { value: 'below_1500', label: 'Below 1500cc' },
+  { value: '1500_2000', label: '1500 - 2000cc' },
+  { value: '2000_3000', label: '2000 - 3000cc' },
+  { value: '3000_4000', label: '3000 - 4000cc' },
+  { value: 'above_4000', label: 'Above 4000cc' },
+];
+
 const categoryOptions = [
   { value: '', label: 'All Categories' },
   { value: 'cars', label: 'Cars' },
@@ -35,6 +76,14 @@ const categoryOptions = [
   { value: 'vans', label: 'Vans' },
 ];
 const seatOptions = ['2', '4', '5', '6', '7', '8+'];
+
+const sortOptions = [
+  { value: 'newest', label: 'Newest First' },
+  { value: 'price_asc', label: 'Price: Low to High' },
+  { value: 'price_desc', label: 'Price: High to Low' },
+  { value: 'mileage_asc', label: 'Mileage: Low to High' },
+  { value: 'mileage_desc', label: 'Mileage: High to Low' },
+];
 
 export default function FilterSidebar({ filters, onFilterChange }: FilterSidebarProps) {
   const { data: session } = useSession();
@@ -74,8 +123,12 @@ export default function FilterSidebar({ filters, onFilterChange }: FilterSidebar
       seats: '',
       fuelType: [],
       transmission: [],
+      bodyType: '',
+      color: '',
+      engineSize: '',
       region: '',
       city: '',
+      sortBy: 'newest',
     });
   };
 
@@ -102,10 +155,31 @@ export default function FilterSidebar({ filters, onFilterChange }: FilterSidebar
     filters.minPrice || filters.maxPrice || filters.yearMin || filters.yearMax ||
     filters.minMileage || filters.maxMileage || filters.seats ||
     filters.fuelType.length > 0 || filters.transmission.length > 0 ||
-    filters.region || filters.city;
+    filters.bodyType || filters.color || filters.engineSize ||
+    filters.region || filters.city || (filters.sortBy && filters.sortBy !== 'newest');
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-md space-y-6">
+      <button
+        onClick={resetFilters}
+        className="w-full px-4 py-2 text-sm text-red-600 border border-red-200 rounded-md hover:bg-red-50 font-medium"
+      >
+        Clear All Filters
+      </button>
+
+      <div>
+        <h3 className="font-semibold mb-3">Sort By</h3>
+        <select
+          value={filters.sortBy || 'newest'}
+          onChange={(e) => onFilterChange({ ...filters, sortBy: e.target.value })}
+          className="w-full px-3 py-2 border rounded-md text-sm"
+        >
+          {sortOptions.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
+      </div>
+
       <div>
         <h3 className="font-semibold mb-3">Category</h3>
         <select
@@ -121,22 +195,16 @@ export default function FilterSidebar({ filters, onFilterChange }: FilterSidebar
 
       <div>
         <h3 className="font-semibold mb-3">Price Range</h3>
-        <div className="flex gap-2">
-          <input
-            type="number"
-            placeholder="Min"
-            value={filters.minPrice}
-            onChange={(e) => onFilterChange({ ...filters, minPrice: e.target.value })}
-            className="w-full px-3 py-2 border rounded-md text-sm"
-          />
-          <input
-            type="number"
-            placeholder="Max"
-            value={filters.maxPrice}
-            onChange={(e) => onFilterChange({ ...filters, maxPrice: e.target.value })}
-            className="w-full px-3 py-2 border rounded-md text-sm"
-          />
-        </div>
+        <PriceRangeSlider
+          min={0}
+          max={20000000}
+          value={[Number(filters.minPrice) || 0, Number(filters.maxPrice) || 20000000]}
+          onChange={([min, max]) => onFilterChange({ 
+            ...filters, 
+            minPrice: min.toString(), 
+            maxPrice: max.toString() 
+          })}
+        />
       </div>
 
       <div>
@@ -257,6 +325,45 @@ export default function FilterSidebar({ filters, onFilterChange }: FilterSidebar
             </label>
           ))}
         </div>
+      </div>
+
+      <div>
+        <h3 className="font-semibold mb-3">Body Type</h3>
+        <select
+          value={filters.bodyType}
+          onChange={(e) => onFilterChange({ ...filters, bodyType: e.target.value })}
+          className="w-full px-3 py-2 border rounded-md text-sm"
+        >
+          {bodyTypes.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <h3 className="font-semibold mb-3">Color</h3>
+        <select
+          value={filters.color}
+          onChange={(e) => onFilterChange({ ...filters, color: e.target.value })}
+          className="w-full px-3 py-2 border rounded-md text-sm"
+        >
+          {colors.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <h3 className="font-semibold mb-3">Engine Size</h3>
+        <select
+          value={filters.engineSize}
+          onChange={(e) => onFilterChange({ ...filters, engineSize: e.target.value })}
+          className="w-full px-3 py-2 border rounded-md text-sm"
+        >
+          {engineSizes.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
       </div>
 
       <div>
