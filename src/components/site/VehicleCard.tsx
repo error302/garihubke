@@ -4,9 +4,10 @@ import { cn } from '@/lib/utils'
 import { formatKES, formatKESFull, formatMileage, formatNumber } from '@/lib/format'
 import { useAppStore } from '@/lib/store'
 import type { VehicleWithDealer } from '@/lib/types'
-import { Heart, Gauge, Fuel, Settings2, MapPin, BadgeCheck, Sparkles, Eye, ArrowUpRight, GitCompare, TrendingDown } from 'lucide-react'
+import { Heart, Gauge, Fuel, Settings2, MapPin, BadgeCheck, Sparkles, Eye, ArrowUpRight, GitCompare, TrendingDown, MessageCircle } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { DEAL_BADGE_STYLES } from '@/lib/market'
+import { openWhatsApp } from '@/lib/whatsapp'
 
 interface VehicleCardProps {
   vehicle: VehicleWithDealer
@@ -171,6 +172,21 @@ export function VehicleCard({ vehicle, variant = 'default', index = 0 }: Vehicle
                 </span>
               )}
               <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  openWhatsApp({
+                    phone: vehicle.dealer?.phone,
+                    vehicleTitle: vehicle.title,
+                    vehiclePrice: vehicle.price,
+                    dealerName: vehicle.dealer?.name,
+                  })
+                }}
+                className="p-1.5 rounded-full bg-[#25D366] hover:bg-[#1eb858] text-white transition"
+                aria-label="Inquire on WhatsApp"
+              >
+                <MessageCircle className="w-4 h-4 fill-white" strokeWidth={1.5} />
+              </button>
+              <button
                 onClick={(e) => { e.stopPropagation(); toggleCompare(vehicle.id) }}
                 className={cn('p-1.5 rounded-full hover:bg-muted transition', inCompare && 'bg-brand/10 text-brand')}
                 aria-label="Add to compare"
@@ -253,6 +269,22 @@ export function VehicleCard({ vehicle, variant = 'default', index = 0 }: Vehicle
         <div className="absolute bottom-3 left-3 inline-flex items-center gap-1 bg-background/95 backdrop-blur text-foreground text-[10px] font-medium px-2 py-1">
           <Eye className="w-3 h-3" strokeWidth={1.5} /> {formatNumber(vehicle.viewsCount)}
         </div>
+        {/* WhatsApp quick inquiry */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            openWhatsApp({
+              phone: vehicle.dealer?.phone,
+              vehicleTitle: vehicle.title,
+              vehiclePrice: vehicle.price,
+              dealerName: vehicle.dealer?.name,
+            })
+          }}
+          className="absolute top-3 right-14 p-2 rounded-full bg-[#25D366] hover:bg-[#1eb858] text-white transition shadow-sm"
+          aria-label="Inquire on WhatsApp"
+        >
+          <MessageCircle className="w-4 h-4 fill-white" strokeWidth={1.5} />
+        </button>
       </div>
 
       <div className="p-4 sm:p-5 flex flex-col flex-1">

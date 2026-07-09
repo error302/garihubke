@@ -13,7 +13,7 @@ import {
   Shield, Sparkles, Award, Search, Filter, Download, MoreHorizontal,
   CircleDollarSign, ShoppingCart, ArrowUpRight, ArrowDownRight, ChevronRight,
   AlertCircle, CheckCircle2, Clock, BadgeCheck, Plus, Pencil, Trash2, X,
-  DollarSign, Camera, Loader2,
+  DollarSign, Camera, Loader2, MessageCircle,
 } from 'lucide-react'
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, ResponsiveContainer,
@@ -21,6 +21,7 @@ import {
 } from 'recharts'
 import { useState, useEffect } from 'react'
 import { formatKES, formatKESFull, formatNumber, formatRelativeTime } from '@/lib/format'
+import { openWhatsApp } from '@/lib/whatsapp'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 
@@ -512,6 +513,17 @@ function LeadsTab() {
                 <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                   <a href={`mailto:${l.email}`} className="inline-flex items-center gap-1 hover:text-brand"><Mail className="w-3 h-3" />{l.email}</a>
                   {l.phone && <a href={`tel:${l.phone}`} className="inline-flex items-center gap-1 hover:text-brand"><Phone className="w-3 h-3" />{l.phone}</a>}
+                  {l.phone && (
+                    <button
+                      onClick={() => openWhatsApp({
+                        phone: l.phone,
+                        customMessage: `Hello ${l.name} 👋\n\nThank you for your inquiry on GariHub KE${l.vehicle ? ` about the ${l.vehicle.title}` : ''}. I'm following up to help you with your request.\n\nBest regards,\nGariHub Team`,
+                      })}
+                      className="inline-flex items-center gap-1 text-[#25D366] hover:text-[#1eb858] font-medium"
+                    >
+                      <MessageCircle className="w-3 h-3 fill-[#25D366]" /> WhatsApp
+                    </button>
+                  )}
                   {l.budget && <span className="inline-flex items-center gap-1"><CircleDollarSign className="w-3 h-3" />Budget: {formatKES(l.budget)}</span>}
                 </div>
                 <div className="mt-3 flex gap-1.5 flex-wrap">

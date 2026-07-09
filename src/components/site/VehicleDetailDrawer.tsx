@@ -9,6 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { useQuery } from '@tanstack/react-query'
 import { formatKES, formatKESFull, formatMileage, formatNumber, formatRelativeTime, computeLoan, computeInsurance } from '@/lib/format'
 import { DEAL_BADGE_STYLES } from '@/lib/market'
+import { openWhatsApp } from '@/lib/whatsapp'
 import { VehicleCard } from './VehicleCard'
 import {
   X, Heart, Share2, GitCompare, BadgeCheck, Sparkles, Phone, MessageCircle,
@@ -181,6 +182,17 @@ export function VehicleDetailDrawer() {
                     className={cn('flex-1 h-12', inCompare ? 'bg-brand text-brand-foreground border-0' : 'border-edge')}
                   >
                     <GitCompare className="w-4 h-4 mr-1.5" strokeWidth={1.5} />{inCompare ? 'In Compare' : 'Compare'}
+                  </Button>
+                  <Button
+                    onClick={() => openWhatsApp({
+                      phone: v.dealer?.phone,
+                      vehicleTitle: v.title,
+                      vehiclePrice: v.price,
+                      dealerName: v.dealer?.name,
+                    })}
+                    className="flex-1 h-12 bg-[#25D366] hover:bg-[#1eb858] text-white border-0"
+                  >
+                    <MessageCircle className="w-4 h-4 mr-1.5 fill-white" strokeWidth={1.5} /> WhatsApp
                   </Button>
                   <Button
                     onClick={() => { navigator.share?.({ title: v.title, url: window.location.href }).catch(() => toast('Link copied')) }}
@@ -406,11 +418,20 @@ export function VehicleDetailDrawer() {
                         {submitting ? 'Sending…' : `Send ${leadType.replace('_', ' ')} request`}
                       </Button>
                       <div className="flex items-center gap-2 mt-2">
-                        <Button variant="outline" className="flex-1 h-11 border-edge" onClick={() => toast('Connecting you to dealer…')}>
+                        <Button variant="outline" className="flex-1 h-11 border-edge" onClick={() => {
+                          if (v.dealer?.phone) window.open(`tel:${v.dealer.phone}`, '_blank')
+                          else toast('Call dealer: +254 700 000 000')
+                        }}>
                           <Phone className="w-4 h-4 mr-1.5" strokeWidth={1.5} /> Call
                         </Button>
-                        <Button variant="outline" className="flex-1 h-11 bg-[#25D366] hover:bg-[#1eb858] text-white border-0" onClick={() => toast('Opening WhatsApp…')}>
-                          <MessageCircle className="w-4 h-4 mr-1.5" /> WhatsApp
+                        <Button variant="outline" className="flex-1 h-11 bg-[#25D366] hover:bg-[#1eb858] text-white border-0" onClick={() => openWhatsApp({
+                          phone: v.dealer?.phone,
+                          vehicleTitle: v.title,
+                          vehiclePrice: v.price,
+                          dealerName: v.dealer?.name,
+                          customMessage: leadForm.message || undefined,
+                        })}>
+                          <MessageCircle className="w-4 h-4 mr-1.5 fill-white" /> WhatsApp
                         </Button>
                       </div>
                     </div>

@@ -5,6 +5,7 @@ import { Header, MobileBottomNav } from '@/components/site/Header'
 import { HeroView, BrowseView, FavoritesView, CompareView, SellView, FinanceView, DealersView, ArticlesView, RecentlyViewedTray } from '@/components/site/Views'
 import { VehicleDetailDrawer } from '@/components/site/VehicleDetailDrawer'
 import { CompareTray } from '@/components/site/CompareTray'
+import { FloatingWhatsApp } from '@/components/site/FloatingWhatsApp'
 import { AdminView } from '@/components/site/AdminView'
 
 export default function Home() {
@@ -36,6 +37,7 @@ export default function Home() {
       {/* Floating overlays */}
       <VehicleDetailDrawer />
       <CompareTray />
+      <FloatingWhatsApp />
       <MobileBottomNav />
     </div>
   )

@@ -9,10 +9,11 @@ import { motion } from 'framer-motion'
 import {
   Search, Shield, Truck, Calculator, Award, ArrowRight, MapPin,
   Gauge, Fuel, Settings2, Star, BadgeCheck, Newspaper, TrendingUp, Heart, GitCompare, X,
-  LayoutGrid, ChevronRight, ArrowUpRight,
+  LayoutGrid, ChevronRight, ArrowUpRight, MessageCircle,
 } from 'lucide-react'
 import { formatKES, formatKESFull, formatNumber, formatMileage } from '@/lib/format'
 import { DEAL_BADGE_STYLES } from '@/lib/market'
+import { openWhatsApp } from '@/lib/whatsapp'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
@@ -951,7 +952,19 @@ export function DealersView() {
             <p className="text-xs text-muted-foreground line-clamp-2 mt-4 font-light">{d.description}</p>
             <div className="mt-4 pt-4 border-t border-edge flex items-center justify-between text-xs">
               <span className="text-muted-foreground">{formatNumber(d.totalSales)} sold</span>
-              <span className="text-brand font-medium inline-flex items-center gap-0.5">View inventory <ArrowUpRight className="w-3 h-3" strokeWidth={1.5} /></span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => openWhatsApp({
+                    phone: d.phone,
+                    dealerName: d.name,
+                    customMessage: `Hello ${d.name} 👋\n\nI found your dealership on GariHub KE and I'd like to inquire about your vehicles.\n\nThank you!`,
+                  })}
+                  className="inline-flex items-center gap-1 bg-[#25D366] hover:bg-[#1eb858] text-white px-2.5 py-1.5 transition font-medium"
+                >
+                  <MessageCircle className="w-3.5 h-3.5 fill-white" strokeWidth={1.5} /> WhatsApp
+                </button>
+                <span className="text-brand font-medium inline-flex items-center gap-0.5">View inventory <ArrowUpRight className="w-3 h-3" strokeWidth={1.5} /></span>
+              </div>
             </div>
           </motion.div>
         ))}
