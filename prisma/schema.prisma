@@ -1,0 +1,166 @@
+// GariHub KE — Premium Vehicle Marketplace Schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  password     String?
+  role         String   @default("user") // user | dealer | admin
+  avatar       String?
+  phone        String?
+  city         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  favorites    Favorite[]
+  leads        Lead[]
+  reviews      Review[]
+  savedSearches SavedSearch[]
+}
+
+model Dealer {
+  id            String   @id @default(cuid())
+  name          String
+  slug          String   @unique
+  logo          String?
+  cover         String?
+  description   String?
+  phone         String?
+  email         String?
+  website       String?
+  address       String?
+  city          String?
+  region        String?
+  rating        Float    @default(0)
+  reviewsCount  Int      @default(0)
+  isVerified    Boolean  @default(false)
+  isPremium     Boolean  @default(false)
+  totalSales    Int      @default(0)
+  responseRate  Int      @default(100) // percent
+  responseTime  String   @default("within 1 hour")
+  joinedAt      DateTime @default(now())
+  vehicles      Vehicle[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Vehicle {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String
+  make            String
+  model           String
+  year            Int
+  variant         String?
+  bodyType        String   // SUV | Sedan | Hatchback | Coupe | Truck | Van | Pickup | Convertible | Wagon
+  fuelType        String   // Petrol | Diesel | Hybrid | Electric | Plugin Hybrid
+  transmission    String   // Automatic | Manual | CVT | DCT
+  drivetrain      String   // AWD | FWD | RWD | 4WD
+  condition       String   @default("Used") // New | Used | Certified Pre-Owned
+  mileage         Int?
+  price           Int
+  currency        String   @default("KES")
+  exteriorColor   String?
+  interiorColor   String?
+  engine          String?
+  displacement    String?  // e.g. "2.0L"
+  horsepower      Int?
+  torque          Int?
+  doors           Int      @default(4)
+  seats           Int      @default(5)
+  vin             String?
+  features        String   // JSON array
+  description     String
+  images          String   // JSON array of URLs
+  videoUrl        String?
+  status          String   @default("active") // active | pending | sold | draft
+  isFeatured      Boolean  @default(false)
+  isPremium       Boolean  @default(false)
+  isVerified      Boolean  @default(false)
+  viewsCount      Int      @default(0)
+  favoritesCount  Int      @default(0)
+  leadsCount      Int      @default(0)
+  location        String?
+  city            String?
+  region          String?
+  dealerId        String?
+  dealer          Dealer?  @relation(fields: [dealerId], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  favorites       Favorite[]
+  leads           Lead[]
+  reviews         Review[]
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  vehicleId String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, vehicleId])
+}
+
+model SavedSearch {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  filters   String   // JSON
+  alertsOn  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Lead {
+  id          String   @id @default(cuid())
+  vehicleId   String?
+  dealerId    String?
+  userId      String?
+  type        String   @default("inquiry") // inquiry | test_drive | offer | finance | trade_in
+  status      String   @default("new") // new | contacted | qualified | closed | lost
+  name        String
+  email       String
+  phone       String?
+  message     String
+  budget      Int?
+  createdAt   DateTime @default(now())
+  vehicle     Vehicle? @relation(fields: [vehicleId], references: [id])
+  user        User?    @relation(fields: [userId], references: [id])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  vehicleId String?
+  dealerId  String?
+  userId    String?
+  rating    Int
+  title     String?
+  comment   String
+  author    String
+  createdAt DateTime @default(now())
+  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id])
+  user      User?    @relation(fields: [userId], references: [id])
+}
+
+model Article {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  excerpt     String
+  content     String
+  category    String
+  cover       String?
+  author      String
+  readMins    Int      @default(5)
+  publishedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+}
