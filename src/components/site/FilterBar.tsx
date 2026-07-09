@@ -8,13 +8,12 @@ import { Slider } from '@/components/ui/slider'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Search, SlidersHorizontal, X, RotateCcw, MapPin, Calendar, Fuel, Settings2, Car } from 'lucide-react'
+import { Search, SlidersHorizontal, X, RotateCcw, MapPin, Calendar, Fuel, Settings2 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { formatKES } from '@/lib/format'
-import type { Filters } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
-export function FilterBar({ compact = false }: { compact?: boolean }) {
+export function FilterBar() {
   const filters = useAppStore((s) => s.filters)
   const setFilters = useAppStore((s) => s.setFilters)
   const resetFilters = useAppStore((s) => s.resetFilters)
@@ -35,23 +34,23 @@ export function FilterBar({ compact = false }: { compact?: boolean }) {
   const activeCount = Object.entries(filters).filter(([k, v]) => k !== 'sort' && v != null && v !== '').length
 
   return (
-    <div className={cn('bg-card border border-border rounded-2xl', compact ? 'p-3' : 'p-4')}>
+    <div className="bg-card border border-edge rounded-sm p-3 sm:p-4">
       <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
         {/* Search */}
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
           <Input
             placeholder="Search make, model, variant…"
             value={filters.q || ''}
             onChange={(e) => setFilters({ q: e.target.value })}
-            className="pl-9 h-11 bg-background"
+            className="pl-9 h-11 bg-background border-edge font-sans text-sm"
           />
         </div>
 
-        {/* Make select */}
+        {/* Make */}
         <Select value={filters.make || '__all'} onValueChange={(v) => setFilters({ make: v === '__all' ? undefined : v })}>
-          <SelectTrigger className="h-11 w-full sm:w-[150px] bg-background">
-            <span className="flex items-center gap-1.5"><Car className="w-3.5 h-3.5" /><SelectValue placeholder="Any make" /></span>
+          <SelectTrigger className="h-11 w-full sm:w-[150px] bg-background border-edge">
+            <SelectValue placeholder="Any make" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="__all">Any make</SelectItem>
@@ -61,7 +60,7 @@ export function FilterBar({ compact = false }: { compact?: boolean }) {
 
         {/* Body type */}
         <Select value={filters.bodyType || '__all'} onValueChange={(v) => setFilters({ bodyType: v === '__all' ? undefined : v })}>
-          <SelectTrigger className="h-11 w-full sm:w-[140px] bg-background">
+          <SelectTrigger className="h-11 w-full sm:w-[140px] bg-background border-edge">
             <SelectValue placeholder="Body type" />
           </SelectTrigger>
           <SelectContent>
@@ -72,7 +71,7 @@ export function FilterBar({ compact = false }: { compact?: boolean }) {
 
         {/* Sort */}
         <Select value={filters.sort || 'relevance'} onValueChange={(v) => setFilters({ sort: v })}>
-          <SelectTrigger className="h-11 w-full sm:w-[150px] bg-background">
+          <SelectTrigger className="h-11 w-full sm:w-[160px] bg-background border-edge">
             <SelectValue placeholder="Sort" />
           </SelectTrigger>
           <SelectContent>
@@ -88,27 +87,27 @@ export function FilterBar({ compact = false }: { compact?: boolean }) {
         {/* Advanced filters popover */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="h-11 px-4 bg-background relative">
-              <SlidersHorizontal className="w-4 h-4 mr-1.5" />
-              <span className="hidden sm:inline">Filters</span>
+            <Button variant="outline" className="h-11 px-4 bg-background border-edge relative">
+              <SlidersHorizontal className="w-4 h-4 mr-1.5" strokeWidth={1.5} />
+              <span className="hidden sm:inline">Refine</span>
               {activeCount > 0 && (
                 <span className="ml-1 bg-brand text-brand-foreground text-[10px] font-semibold rounded-full w-5 h-5 inline-flex items-center justify-center">{activeCount}</span>
               )}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-[340px] sm:w-[400px] p-0" align="end">
-            <ScrollArea className="h-[480px]">
-              <div className="p-4 space-y-5">
+          <PopoverContent className="w-[340px] sm:w-[400px] p-0 border-edge" align="end">
+            <ScrollArea className="h-[520px] premium-scroll">
+              <div className="p-5 space-y-6">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-display font-semibold text-base">Refine</h3>
+                  <h3 className="font-display font-semibold text-lg">Refine</h3>
                   <button onClick={resetFilters} className="text-xs text-brand inline-flex items-center gap-1 hover:underline">
                     <RotateCcw className="w-3 h-3" /> Reset
                   </button>
                 </div>
 
-                {/* Price range */}
+                {/* Price */}
                 <div className="space-y-2">
-                  <Label className="text-xs uppercase tracking-wider text-muted-foreground">Price range</Label>
+                  <Label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Price range</Label>
                   <Slider
                     min={facets?.priceRange.min || 0}
                     max={facets?.priceRange.max || 25000000}
@@ -117,15 +116,15 @@ export function FilterBar({ compact = false }: { compact?: boolean }) {
                     onValueChange={(v) => setFilters({ minPrice: v[0], maxPrice: v[1] })}
                     className="mt-3"
                   />
-                  <div className="flex justify-between text-xs text-muted-foreground">
+                  <div className="flex justify-between text-xs text-muted-foreground font-mono">
                     <span>{formatKES(filters.minPrice || facets?.priceRange.min || 0)}</span>
                     <span>{formatKES(filters.maxPrice || facets?.priceRange.max || 25000000)}</span>
                   </div>
                 </div>
 
-                {/* Year range */}
+                {/* Year */}
                 <div className="space-y-2">
-                  <Label className="text-xs uppercase tracking-wider text-muted-foreground">Year</Label>
+                  <Label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-1.5"><Calendar className="w-3 h-3" /> Year</Label>
                   <Slider
                     min={facets?.yearRange.min || 2010}
                     max={facets?.yearRange.max || 2025}
@@ -134,7 +133,7 @@ export function FilterBar({ compact = false }: { compact?: boolean }) {
                     onValueChange={(v) => setFilters({ minYear: v[0], maxYear: v[1] })}
                     className="mt-3"
                   />
-                  <div className="flex justify-between text-xs text-muted-foreground">
+                  <div className="flex justify-between text-xs text-muted-foreground font-mono">
                     <span>{filters.minYear || facets?.yearRange.min || 2010}</span>
                     <span>{filters.maxYear || facets?.yearRange.max || 2025}</span>
                   </div>
@@ -142,15 +141,15 @@ export function FilterBar({ compact = false }: { compact?: boolean }) {
 
                 {/* Fuel */}
                 <div className="space-y-2">
-                  <Label className="text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1.5"><Fuel className="w-3 h-3" /> Fuel</Label>
+                  <Label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-1.5"><Fuel className="w-3 h-3" /> Fuel</Label>
                   <div className="flex flex-wrap gap-1.5">
                     {facets?.fuelTypes.map((f) => (
                       <button
                         key={f}
                         onClick={() => setFilters({ fuelType: filters.fuelType === f ? undefined : f })}
                         className={cn(
-                          'text-xs px-3 py-1.5 rounded-full border transition',
-                          filters.fuelType === f ? 'bg-foreground text-background border-foreground' : 'bg-background border-border hover:border-foreground/30',
+                          'text-xs px-3 py-1.5 border transition',
+                          filters.fuelType === f ? 'bg-foreground text-background border-foreground' : 'bg-background border-edge hover:border-foreground/30',
                         )}
                       >{f}</button>
                     ))}
@@ -159,15 +158,15 @@ export function FilterBar({ compact = false }: { compact?: boolean }) {
 
                 {/* Transmission */}
                 <div className="space-y-2">
-                  <Label className="text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1.5"><Settings2 className="w-3 h-3" /> Transmission</Label>
+                  <Label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-1.5"><Settings2 className="w-3 h-3" /> Transmission</Label>
                   <div className="flex flex-wrap gap-1.5">
                     {facets?.transmissions.map((t) => (
                       <button
                         key={t}
                         onClick={() => setFilters({ transmission: filters.transmission === t ? undefined : t })}
                         className={cn(
-                          'text-xs px-3 py-1.5 rounded-full border transition',
-                          filters.transmission === t ? 'bg-foreground text-background border-foreground' : 'bg-background border-border hover:border-foreground/30',
+                          'text-xs px-3 py-1.5 border transition',
+                          filters.transmission === t ? 'bg-foreground text-background border-foreground' : 'bg-background border-edge hover:border-foreground/30',
                         )}
                       >{t}</button>
                     ))}
@@ -176,15 +175,15 @@ export function FilterBar({ compact = false }: { compact?: boolean }) {
 
                 {/* Drivetrain */}
                 <div className="space-y-2">
-                  <Label className="text-xs uppercase tracking-wider text-muted-foreground">Drivetrain</Label>
+                  <Label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Drivetrain</Label>
                   <div className="flex flex-wrap gap-1.5">
                     {facets?.drivetrains.map((d) => (
                       <button
                         key={d}
                         onClick={() => setFilters({ drivetrain: filters.drivetrain === d ? undefined : d })}
                         className={cn(
-                          'text-xs px-3 py-1.5 rounded-full border transition',
-                          filters.drivetrain === d ? 'bg-foreground text-background border-foreground' : 'bg-background border-border hover:border-foreground/30',
+                          'text-xs px-3 py-1.5 border transition',
+                          filters.drivetrain === d ? 'bg-foreground text-background border-foreground' : 'bg-background border-edge hover:border-foreground/30',
                         )}
                       >{d}</button>
                     ))}
@@ -193,15 +192,15 @@ export function FilterBar({ compact = false }: { compact?: boolean }) {
 
                 {/* Condition */}
                 <div className="space-y-2">
-                  <Label className="text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1.5"><Calendar className="w-3 h-3" /> Condition</Label>
+                  <Label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Condition</Label>
                   <div className="flex flex-wrap gap-1.5">
                     {facets?.conditions.map((c) => (
                       <button
                         key={c}
                         onClick={() => setFilters({ condition: filters.condition === c ? undefined : c })}
                         className={cn(
-                          'text-xs px-3 py-1.5 rounded-full border transition',
-                          filters.condition === c ? 'bg-foreground text-background border-foreground' : 'bg-background border-border hover:border-foreground/30',
+                          'text-xs px-3 py-1.5 border transition',
+                          filters.condition === c ? 'bg-foreground text-background border-foreground' : 'bg-background border-edge hover:border-foreground/30',
                         )}
                       >{c}</button>
                     ))}
@@ -210,15 +209,15 @@ export function FilterBar({ compact = false }: { compact?: boolean }) {
 
                 {/* City */}
                 <div className="space-y-2">
-                  <Label className="text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1.5"><MapPin className="w-3 h-3" /> Location</Label>
+                  <Label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-1.5"><MapPin className="w-3 h-3" /> Location</Label>
                   <div className="flex flex-wrap gap-1.5">
                     {facets?.cities.map((c) => (
                       <button
                         key={c}
                         onClick={() => setFilters({ city: filters.city === c ? undefined : c })}
                         className={cn(
-                          'text-xs px-3 py-1.5 rounded-full border transition',
-                          filters.city === c ? 'bg-foreground text-background border-foreground' : 'bg-background border-border hover:border-foreground/30',
+                          'text-xs px-3 py-1.5 border transition',
+                          filters.city === c ? 'bg-foreground text-background border-foreground' : 'bg-background border-edge hover:border-foreground/30',
                         )}
                       >{c}</button>
                     ))}
@@ -226,19 +225,19 @@ export function FilterBar({ compact = false }: { compact?: boolean }) {
                 </div>
 
                 {/* Toggles */}
-                <div className="space-y-2 pt-2 border-t border-border">
+                <div className="space-y-2 pt-2 border-t border-edge">
                   <button
                     onClick={() => setFilters({ featured: !filters.featured })}
                     className={cn(
-                      'text-xs px-3 py-1.5 rounded-full border transition w-full text-left',
-                      filters.featured ? 'bg-brand/10 text-brand border-brand' : 'bg-background border-border hover:border-foreground/30',
+                      'text-xs px-3 py-2 border transition w-full text-left',
+                      filters.featured ? 'bg-brand/10 text-brand border-brand' : 'bg-background border-edge hover:border-foreground/30',
                     )}
                   >★ Featured only</button>
                   <button
                     onClick={() => setFilters({ premium: !filters.premium })}
                     className={cn(
-                      'text-xs px-3 py-1.5 rounded-full border transition w-full text-left',
-                      filters.premium ? 'bg-brand/10 text-brand border-brand' : 'bg-background border-border hover:border-foreground/30',
+                      'text-xs px-3 py-2 border transition w-full text-left',
+                      filters.premium ? 'bg-brand/10 text-brand border-brand' : 'bg-background border-edge hover:border-foreground/30',
                     )}
                   >◆ Premium only</button>
                 </div>
@@ -248,7 +247,7 @@ export function FilterBar({ compact = false }: { compact?: boolean }) {
         </Popover>
       </div>
 
-      {/* Active filter chips */}
+      {/* Active chips */}
       {activeCount > 0 && (
         <div className="mt-3 flex flex-wrap gap-1.5">
           {Object.entries(filters).map(([k, v]) => {
@@ -258,9 +257,9 @@ export function FilterBar({ compact = false }: { compact?: boolean }) {
               <button
                 key={k}
                 onClick={() => setFilters({ [k]: undefined } as any)}
-                className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-muted hover:bg-muted/70"
+                className="inline-flex items-center gap-1 text-xs px-2.5 py-1 bg-muted hover:bg-muted/70"
               >
-                <span className="capitalize">{k}:</span> <span className="font-medium">{String(v)}</span>
+                <span className="capitalize text-muted-foreground">{k}:</span> <span className="font-medium">{String(v)}</span>
                 <X className="w-3 h-3" />
               </button>
             )
@@ -268,7 +267,7 @@ export function FilterBar({ compact = false }: { compact?: boolean }) {
           {(filters.featured || filters.premium) && (
             <button
               onClick={() => setFilters({ featured: false, premium: false })}
-              className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-brand/10 text-brand hover:bg-brand/20"
+              className="inline-flex items-center gap-1 text-xs px-2.5 py-1 bg-brand/10 text-brand hover:bg-brand/20"
             >
               {filters.featured ? 'Featured' : 'Premium'} <X className="w-3 h-3" />
             </button>

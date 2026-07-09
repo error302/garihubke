@@ -36,13 +36,6 @@ export type ViewKey =
   | 'compare'
   | 'sell'
   | 'finance'
-  | 'concierge'
   | 'admin'
   | 'articles'
   | 'dealers'
-
-export interface ChatMessage {
-  role: 'user' | 'assistant'
-  content: string
-  recs?: string[] // vehicle slugs
-}

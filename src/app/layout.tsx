@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import { Inter, Fraunces } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
@@ -11,17 +11,19 @@ const inter = Inter({
   display: "swap",
 });
 
-const jakarta = Plus_Jakarta_Sans({
+// Fraunces — a modern editorial serif with optical sizing
+const fraunces = Fraunces({
   variable: "--font-display",
   subsets: ["latin"],
-  weight: ["500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700", "900"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "GariHub KE — Kenya's Premium Vehicle Marketplace",
   description:
-    "Discover, compare and own Kenya's finest vehicles. Curated inventory from verified dealers, AI concierge, M-Pesa finance, and a checkout so smooth you'll keep browsing for hours.",
+    "A curated marketplace for Kenya's finest vehicles. Verified dealers, refined search, M-Pesa finance. Spend hours here.",
   keywords: [
     "cars Kenya", "buy cars Nairobi", "GariHub", "vehicle marketplace Kenya",
     "Toyota Kenya", "Land Cruiser", "Range Rover Kenya", "car finance Kenya",
@@ -29,7 +31,7 @@ export const metadata: Metadata = {
   authors: [{ name: "GariHub KE" }],
   openGraph: {
     title: "GariHub KE — Kenya's Premium Vehicle Marketplace",
-    description: "Curated inventory, verified dealers, AI concierge. The finest way to buy a car in Kenya.",
+    description: "A curated marketplace for Kenya's finest vehicles.",
     siteName: "GariHub KE",
     type: "website",
   },
@@ -65,7 +67,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body
-        className={`${inter.variable} ${jakarta.variable} antialiased bg-background text-foreground font-sans`}
+        className={`${inter.variable} ${fraunces.variable} antialiased bg-background text-foreground font-sans`}
       >
         <AppProviders>
           {children}

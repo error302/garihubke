@@ -2,7 +2,7 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { Filters, ViewKey, ChatMessage } from './types'
+import type { Filters, ViewKey } from './types'
 
 interface AppState {
   // Navigation / view state
@@ -32,13 +32,6 @@ interface AppState {
   recentlyViewed: string[]
   pushRecent: (slug: string) => void
 
-  // Chat
-  chatOpen: boolean
-  setChatOpen: (b: boolean) => void
-  chatMessages: ChatMessage[]
-  addChatMessage: (m: ChatMessage) => void
-  resetChat: () => void
-
   // Admin drawer tab
   adminTab: string
   setAdminTab: (t: string) => void
@@ -47,6 +40,10 @@ interface AppState {
   theme: 'light' | 'dark'
   setTheme: (t: 'light' | 'dark') => void
   toggleTheme: () => void
+
+  // Mobile menu sheet
+  menuOpen: boolean
+  setMenuOpen: (b: boolean) => void
 }
 
 export const useAppStore = create<AppState>()(
@@ -93,14 +90,6 @@ export const useAppStore = create<AppState>()(
         set({ recentlyViewed: [slug, ...cur].slice(0, 12) })
       },
 
-      chatOpen: false,
-      setChatOpen: (b) => set({ chatOpen: b }),
-      chatMessages: [
-        { role: 'assistant', content: "Habari! I'm Gari, your AI car concierge. Tell me your budget, what you'll use the car for, and any must-haves — I'll match you with the perfect rides from our inventory." },
-      ],
-      addChatMessage: (m) => set({ chatMessages: [...get().chatMessages, m] }),
-      resetChat: () => set({ chatMessages: [{ role: 'assistant', content: "Habari! I'm Gari, your AI car concierge. Tell me your budget, what you'll use the car for, and any must-haves — I'll match you with the perfect rides from our inventory." }] }),
-
       adminTab: 'overview',
       setAdminTab: (t) => set({ adminTab: t }),
 
@@ -115,6 +104,9 @@ export const useAppStore = create<AppState>()(
         const next = get().theme === 'light' ? 'dark' : 'light'
         get().setTheme(next)
       },
+
+      menuOpen: false,
+      setMenuOpen: (b) => set({ menuOpen: b }),
     }),
     {
       name: 'garihub-ke',

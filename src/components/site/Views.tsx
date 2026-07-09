@@ -7,26 +7,25 @@ import { FilterBar } from './FilterBar'
 import { Button } from '@/components/ui/button'
 import { motion } from 'framer-motion'
 import {
-  Search, Sparkles, Shield, Truck, Calculator, Award, ArrowRight, MapPin,
+  Search, Shield, Truck, Calculator, Award, ArrowRight, MapPin,
   Gauge, Fuel, Settings2, Star, BadgeCheck, Newspaper, TrendingUp, Heart, GitCompare, X,
-  LayoutGrid, ChevronRight,
+  LayoutGrid, ChevronRight, ArrowUpRight,
 } from 'lucide-react'
 import { formatKES, formatKESFull, formatNumber, formatMileage } from '@/lib/format'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 
-// ============== HERO ==============
+// ============== HERO — editorial, cinematic ==============
 export function HeroView() {
   const setView = useAppStore((s) => s.setView)
   const setFilters = useAppStore((s) => s.setFilters)
-  const setChatOpen = useAppStore((s) => s.setChatOpen)
   const [q, setQ] = useState('')
 
   const { data: featured } = useQuery({
     queryKey: ['featured-vehicles'],
     queryFn: async () => {
-      const r = await fetch('/api/vehicles?featured=1&limit=6')
+      const r = await fetch('/api/vehicles?featured=1&limit=5')
       const d = await r.json()
       return d.vehicles as any[]
     },
@@ -40,152 +39,186 @@ export function HeroView() {
 
   return (
     <div>
-      {/* Hero */}
-      <section className="relative overflow-hidden hero-wash">
-        <div className="absolute inset-0 bg-grain opacity-50" />
-        <div className="container-premium relative py-12 sm:py-20 lg:py-28">
+      {/* ============ HERO ============ */}
+      <section className="relative overflow-hidden">
+        {/* Background image — full bleed */}
+        <div className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=2000&q=85"
+            alt=""
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/85 via-background/70 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/60 via-transparent to-transparent" />
+        </div>
+
+        <div className="container-premium relative pt-12 pb-16 sm:pt-20 sm:pb-24 lg:pt-28 lg:pb-32">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
             className="max-w-3xl"
           >
-            <div className="inline-flex items-center gap-2 bg-card border border-border rounded-full px-3 py-1 text-xs font-medium mb-6">
-              <span className="w-2 h-2 rounded-full bg-brand animate-pulse" />
-              <span className="text-muted-foreground">Kenya's premium vehicle marketplace</span>
+            <div className="inline-flex items-center gap-2 mb-8">
+              <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
+              <span className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground font-medium">Kenya · Est. 2024</span>
             </div>
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight text-balance leading-[1.05]">
-              Find the car <span className="text-brand">you deserve.</span>
+
+            <h1 className="font-display text-5xl sm:text-6xl lg:text-8xl font-medium tracking-[-0.03em] leading-[0.95] text-balance">
+              The car you<br />
+              <span className="italic font-light text-brand">deserve</span> is here.
             </h1>
-            <p className="mt-4 text-base sm:text-lg text-muted-foreground max-w-xl text-pretty">
-              Curated inventory from verified dealers. AI-powered recommendations. M-Pesa finance in minutes. Drive home with confidence — guaranteed.
+
+            <p className="mt-6 text-base sm:text-lg text-muted-foreground max-w-xl text-pretty font-light leading-relaxed">
+              A curated marketplace for Kenya's finest vehicles. Verified dealers, refined search, M-Pesa finance in minutes.
             </p>
           </motion.div>
 
-          {/* Search bar */}
+          {/* Search */}
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.15 }}
-            className="mt-8 max-w-3xl"
+            transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="mt-10 max-w-3xl"
           >
-            <div className="bg-card border border-border rounded-2xl p-2 shadow-xl shadow-black/5 flex flex-col sm:flex-row gap-2">
+            <div className="bg-card/95 backdrop-blur border border-edge p-2 flex flex-col sm:flex-row gap-2 shadow-[0_8px_30px_rgba(0,0,0,0.06)]">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
                 <input
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && startSearch()}
                   placeholder="Search by make, model or keyword…"
-                  className="w-full h-12 pl-11 pr-3 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+                  className="w-full h-12 pl-10 pr-3 bg-background border-0 text-sm focus:outline-none"
                 />
               </div>
-              <Button onClick={startSearch} className="h-12 px-6 bg-brand hover:bg-brand/90 text-brand-foreground gap-2">
-                <Search className="w-4 h-4" /> Search
+              <Button onClick={startSearch} className="h-12 px-7 bg-foreground hover:bg-foreground/90 text-background gap-2 rounded-none">
+                <Search className="w-4 h-4" strokeWidth={1.5} /> Search
               </Button>
             </div>
-            <div className="mt-3 flex flex-wrap gap-2 text-xs">
-              <span className="text-muted-foreground">Popular:</span>
+            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs">
+              <span className="text-muted-foreground uppercase tracking-wider text-[10px]">Popular:</span>
               {['Land Cruiser', 'Prado', 'Hilux', 'RAV4', 'Range Rover'].map((t) => (
                 <button
                   key={t}
                   onClick={() => { setFilters({ q: t }); setView('browse') }}
-                  className="hover:text-brand transition"
+                  className="text-foreground/80 hover:text-brand transition"
                 >{t}</button>
               ))}
             </div>
           </motion.div>
+        </div>
+      </section>
 
-          {/* Quick category tiles */}
-          <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-3">
+      {/* ============ STATS STRIP ============ */}
+      <section className="border-y border-edge bg-card">
+        <div className="container-premium py-8 grid grid-cols-2 lg:grid-cols-4 divide-x divide-edge">
+          {[
+            { value: '247', label: 'Vehicles in stock' },
+            { value: '6', label: 'Verified dealers' },
+            { value: '12K+', label: 'Active buyers' },
+            { value: '4.7★', label: 'Average rating' },
+          ].map((s) => (
+            <div key={s.label} className="px-4 first:pl-0 last:pr-0 text-center sm:text-left">
+              <p className="font-display text-3xl lg:text-4xl font-medium tracking-tight">{s.value}</p>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mt-1">{s.label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ============ FEATURED — editorial rail ============ */}
+      <section className="container-premium py-12 sm:py-20">
+        <div className="flex items-end justify-between mb-8">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">Handpicked · 01</p>
+            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">Featured vehicles</h2>
+          </div>
+          <Button variant="ghost" onClick={() => setView('browse')} className="text-brand hidden sm:inline-flex">
+            View all <ArrowUpRight className="w-4 h-4 ml-1" strokeWidth={1.5} />
+          </Button>
+        </div>
+
+        {/* Editorial rail — 1 large + smaller cards */}
+        {featured && featured.length > 0 && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+            {/* Large hero card */}
+            <div className="lg:col-span-7">
+              <VehicleCard vehicle={featured[0]} variant="editorial" index={0} />
+            </div>
+            {/* Stacked smaller cards */}
+            <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 sm:gap-6">
+              {featured.slice(1, 5).map((v, i) => (
+                <VehicleCard key={v.id} vehicle={v} variant="editorial" index={i + 1} />
+              ))}
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* ============ PERKS — editorial grid ============ */}
+      <section className="bg-foreground text-background py-16 sm:py-24">
+        <div className="container-premium">
+          <div className="max-w-2xl mb-12">
+            <p className="text-[10px] uppercase tracking-[0.3em] text-background/60 mb-2">Why GariHub · 02</p>
+            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">
+              Buy with<br /><span className="italic font-light text-brand">confidence.</span>
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
-              { label: 'SUVs', icon: '🚙', filter: { bodyType: 'SUV' } },
-              { label: 'Sedans', icon: '🚗', filter: { bodyType: 'Sedan' } },
-              { label: 'Pickups', icon: '🛻', filter: { bodyType: 'Pickup' } },
-              { label: 'Electric', icon: '⚡', filter: { fuelType: 'Electric' } },
-            ].map((cat) => (
-              <button
-                key={cat.label}
-                onClick={() => { setFilters(cat.filter); setView('browse') }}
-                className="bg-card border border-border rounded-2xl p-4 text-left hover:border-brand transition hover:shadow-md group"
+              { icon: Shield, title: 'Money-back guarantee', desc: 'Not in love within 7 days? Return it, no questions asked. We mean it.' },
+              { icon: BadgeCheck, title: 'Verified dealers', desc: 'Every dealer vetted in person. Every car inspected by our 200-point checklist.' },
+              { icon: Calculator, title: 'M-Pesa finance', desc: 'Pre-qualify in 5 minutes. Drive home today. Powered by NCBA, KCB, Equity.' },
+              { icon: Truck, title: 'Nationwide delivery', desc: 'Mombasa to Eldoret. Free on premium vehicles. White-glove service.' },
+            ].map((v, i) => (
+              <motion.div
+                key={v.title}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.08 }}
+                className="group"
               >
-                <div className="text-2xl mb-2">{cat.icon}</div>
-                <div className="font-display font-semibold">{cat.label}</div>
-                <div className="text-xs text-muted-foreground inline-flex items-center gap-0.5 mt-1 group-hover:text-brand transition">
-                  Browse <ChevronRight className="w-3 h-3" />
+                <div className="w-10 h-10 mb-5 flex items-center justify-center border border-background/20 group-hover:border-brand transition">
+                  <v.icon className="w-5 h-5 text-brand" strokeWidth={1.5} />
                 </div>
-              </button>
+                <p className="text-[10px] uppercase tracking-[0.2em] text-background/50 mb-2">0{i + 1}</p>
+                <h3 className="font-display text-xl font-medium mb-2">{v.title}</h3>
+                <p className="text-sm text-background/70 font-light leading-relaxed">{v.desc}</p>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Value props */}
-      <section className="container-premium py-12 sm:py-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            { icon: Shield, title: '7-day money-back', desc: 'Not in love? Return it. No questions asked.' },
-            { icon: BadgeCheck, title: 'Verified dealers', desc: 'Every dealer vetted. Every car inspected.' },
-            { icon: Calculator, title: 'M-Pesa finance', desc: 'Pre-qualify in 5 minutes. Drive home today.' },
-            { icon: Truck, title: 'Nationwide delivery', desc: 'Mombasa to Eldoret. Free on premium cars.' },
-          ].map((v, i) => (
-            <motion.div
-              key={v.title}
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: i * 0.05 }}
-              className="bg-card border border-border rounded-2xl p-5"
-            >
-              <div className="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center mb-3">
-                <v.icon className="w-5 h-5 text-brand" />
-              </div>
-              <h3 className="font-display font-semibold">{v.title}</h3>
-              <p className="text-sm text-muted-foreground mt-1">{v.desc}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* Featured vehicles */}
-      <section className="container-premium py-8 sm:py-12">
-        <div className="flex items-end justify-between mb-6">
-          <div>
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">Handpicked for you</p>
-            <h2 className="font-display text-2xl sm:text-3xl font-bold mt-1">Featured vehicles</h2>
-          </div>
-          <Button variant="ghost" onClick={() => setView('browse')} className="text-brand">
-            View all <ArrowRight className="w-4 h-4 ml-1" />
-          </Button>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-          {featured?.slice(0, 6).map((v, i) => (
-            <VehicleCard key={v.id} vehicle={v} index={i} />
-          ))}
-        </div>
-      </section>
-
-      {/* Browse by make */}
+      {/* ============ BROWSE BY MAKE ============ */}
       <BrowseByMake />
 
-      {/* Editorial */}
+      {/* ============ ARTICLES ============ */}
       <ArticlesTeaser />
 
-      {/* CTA */}
-      <section className="container-premium py-12">
-        <div className="relative overflow-hidden rounded-3xl bg-foreground text-background p-8 sm:p-12">
-          <div className="absolute inset-0 bg-grain opacity-20" />
+      {/* ============ SELL CTA ============ */}
+      <section className="container-premium py-16 sm:py-24">
+        <div className="bg-card border border-edge p-8 sm:p-12 lg:p-16 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-1/3 h-full opacity-10">
+            <img src="https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=800&q=80" alt="" className="w-full h-full object-cover" />
+          </div>
           <div className="relative max-w-2xl">
-            <h2 className="font-display text-3xl sm:text-4xl font-bold leading-tight">Selling your car?</h2>
-            <p className="mt-3 text-background/80 text-pretty">
-              List in 2 minutes. Reach 200,000+ serious buyers across Kenya. Free for individuals — premium tools for dealers.
+            <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-3">For sellers · 03</p>
+            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight leading-[1.05]">
+              Selling your car?<br /><span className="italic font-light text-brand">List in 2 minutes.</span>
+            </h2>
+            <p className="mt-4 text-muted-foreground text-pretty font-light max-w-md">
+              Reach 200,000+ serious buyers across Kenya. Free for individuals — premium tools for dealers.
             </p>
-            <div className="mt-6 flex flex-col sm:flex-row gap-3">
-              <Button onClick={() => setView('sell')} className="bg-brand hover:bg-brand/90 text-brand-foreground h-12 px-6">
-                List your car <ArrowRight className="w-4 h-4 ml-2" />
+            <div className="mt-8 flex flex-col sm:flex-row gap-3">
+              <Button onClick={() => setView('sell')} className="h-12 px-7 bg-foreground hover:bg-foreground/90 text-background gap-2">
+                List your car <ArrowRight className="w-4 h-4" strokeWidth={1.5} />
               </Button>
-              <Button onClick={() => setChatOpen(true)} variant="outline" className="h-12 px-6 border-background/30 text-background hover:bg-background/10">
-                <Sparkles className="w-4 h-4 mr-2" /> Get AI valuation
+              <Button onClick={() => setView('browse')} variant="outline" className="h-12 px-7 border-edge gap-2">
+                Browse inventory
               </Button>
             </div>
           </div>
@@ -206,23 +239,22 @@ function BrowseByMake() {
   })
 
   const makes = data?.makes || []
-  const colors = ['bg-red-500', 'bg-blue-500', 'bg-emerald-500', 'bg-amber-500', 'bg-purple-500', 'bg-pink-500', 'bg-cyan-500', 'bg-orange-500', 'bg-lime-500', 'bg-rose-500']
 
   return (
-    <section className="container-premium py-8 sm:py-12">
-      <h2 className="font-display text-2xl sm:text-3xl font-bold mb-6">Browse by make</h2>
-      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
-        {makes.map((m, i) => (
+    <section className="container-premium py-12 sm:py-20">
+      <div className="mb-8">
+        <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">Browse · 04</p>
+        <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">By manufacturer</h2>
+      </div>
+      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-px bg-edge border border-edge">
+        {makes.map((m) => (
           <button
             key={m}
             onClick={() => { setFilters({ make: m }); setView('browse') }}
-            className="group bg-card border border-border rounded-2xl p-4 hover:border-brand hover:shadow-md transition"
+            className="group bg-card p-5 text-left hover:bg-muted/40 transition"
           >
-            <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center font-display font-bold text-white mb-2', colors[i % colors.length])}>
-              {m.charAt(0)}
-            </div>
-            <p className="font-display font-semibold text-sm">{m}</p>
-            <p className="text-[10px] text-muted-foreground group-hover:text-brand transition">Browse →</p>
+            <p className="font-display text-lg font-medium tracking-tight">{m}</p>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1 group-hover:text-brand transition">Browse →</p>
           </button>
         ))}
       </div>
@@ -240,32 +272,38 @@ function ArticlesTeaser() {
   if (!data || data.length === 0) return null
 
   return (
-    <section className="container-premium py-8 sm:py-12">
-      <div className="flex items-end justify-between mb-6">
+    <section className="container-premium py-12 sm:py-20">
+      <div className="flex items-end justify-between mb-8">
         <div>
-          <p className="text-xs uppercase tracking-wider text-muted-foreground">Buyer resources</p>
-          <h2 className="font-display text-2xl sm:text-3xl font-bold mt-1">Guides & insights</h2>
+          <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">Journal · 05</p>
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">Guides & insights</h2>
         </div>
-        <Button variant="ghost" onClick={() => setView('articles')} className="text-brand">
-          All guides <ArrowRight className="w-4 h-4 ml-1" />
+        <Button variant="ghost" onClick={() => setView('articles')} className="text-brand hidden sm:inline-flex">
+          All guides <ArrowUpRight className="w-4 h-4 ml-1" strokeWidth={1.5} />
         </Button>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {data.slice(0, 3).map((a) => (
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+        {data.slice(0, 3).map((a, i) => (
           <button
             key={a.id}
             onClick={() => setView('articles')}
-            className="group text-left bg-card border border-border rounded-2xl overflow-hidden hover:shadow-md transition"
+            className="group text-left"
           >
-            <div className="aspect-[16/9] bg-gradient-to-br from-brand/10 to-accent/40 flex items-center justify-center">
-              <Newspaper className="w-12 h-12 text-brand/40 group-hover:scale-110 transition" />
+            <div className="aspect-[16/10] bg-muted overflow-hidden mb-4 relative">
+              <img
+                src={i === 0 ? 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=1200&q=80' :
+                     i === 1 ? 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=1200&q=80' :
+                               'https://images.unsplash.com/photo-1542362567-b07e54358753?w=1200&q=80'}
+                alt=""
+                className="w-full h-full object-cover img-zoom"
+              />
+              <div className="absolute top-3 left-3">
+                <span className="bg-background/95 backdrop-blur text-foreground text-[9px] font-semibold tracking-wider uppercase px-2 py-1">{a.category}</span>
+              </div>
             </div>
-            <div className="p-4">
-              <p className="text-[10px] uppercase tracking-wider text-brand font-medium">{a.category}</p>
-              <h3 className="font-display font-semibold mt-1 line-clamp-2 group-hover:text-brand transition">{a.title}</h3>
-              <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{a.excerpt}</p>
-              <p className="text-[10px] text-muted-foreground mt-2">{a.author} · {a.readMins} min read</p>
-            </div>
+            <h3 className="font-display text-xl lg:text-2xl font-medium leading-tight line-clamp-2 group-hover:text-brand transition">{a.title}</h3>
+            <p className="text-sm text-muted-foreground mt-2 line-clamp-2 font-light">{a.excerpt}</p>
+            <p className="text-[10px] text-muted-foreground mt-3 uppercase tracking-wider">{a.author} · {a.readMins} min read</p>
           </button>
         ))}
       </div>
@@ -277,6 +315,7 @@ function ArticlesTeaser() {
 export function BrowseView() {
   const filters = useAppStore((s) => s.filters)
   const setFilters = useAppStore((s) => s.setFilters)
+  const resetFilters = useAppStore((s) => s.resetFilters)
 
   const queryStr = new URLSearchParams(
     Object.entries(filters).reduce((acc, [k, v]) => {
@@ -298,27 +337,28 @@ export function BrowseView() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
   return (
-    <div className="container-premium py-6 sm:py-8 space-y-5">
+    <div className="container-premium py-8 sm:py-12 space-y-6">
       <div>
-        <h1 className="font-display text-2xl sm:text-3xl font-bold">Browse vehicles</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          {data ? `${data.length} vehicles found` : 'Loading…'}
+        <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">Browse</p>
+        <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">All vehicles</h1>
+        <p className="text-sm text-muted-foreground mt-2 font-light">
+          {data ? `${data.length} ${data.length === 1 ? 'vehicle' : 'vehicles'} found` : 'Loading…'}
         </p>
       </div>
       <FilterBar />
 
       {/* View toggle */}
       <div className="flex items-center justify-between">
-        <div className="flex gap-1 bg-muted rounded-lg p-1">
+        <div className="flex gap-px bg-edge border border-edge">
           <button
             onClick={() => setViewMode('grid')}
-            className={cn('px-3 py-1.5 rounded-md text-xs font-medium transition flex items-center gap-1.5', viewMode === 'grid' ? 'bg-background shadow-sm' : 'text-muted-foreground')}
+            className={cn('px-4 py-2 text-xs font-medium transition flex items-center gap-1.5', viewMode === 'grid' ? 'bg-foreground text-background' : 'bg-card text-muted-foreground hover:text-foreground')}
           >
-            <LayoutGrid className="w-3.5 h-3.5" /> Grid
+            <LayoutGrid className="w-3.5 h-3.5" strokeWidth={1.5} /> Grid
           </button>
           <button
             onClick={() => setViewMode('list')}
-            className={cn('px-3 py-1.5 rounded-md text-xs font-medium transition flex items-center gap-1.5', viewMode === 'list' ? 'bg-background shadow-sm' : 'text-muted-foreground')}
+            className={cn('px-4 py-2 text-xs font-medium transition flex items-center gap-1.5', viewMode === 'list' ? 'bg-foreground text-background' : 'bg-card text-muted-foreground hover:text-foreground')}
           >
             <span className="text-base leading-none">≡</span> List
           </button>
@@ -326,34 +366,34 @@ export function BrowseView() {
       </div>
 
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="bg-card border border-border rounded-2xl overflow-hidden">
-              <div className="aspect-[16/10] shimmer" />
-              <div className="p-4 space-y-2">
-                <div className="h-3 w-1/3 shimmer rounded" />
-                <div className="h-5 w-2/3 shimmer rounded" />
-                <div className="h-3 w-full shimmer rounded" />
-                <div className="h-8 w-1/2 shimmer rounded mt-3" />
+            <div key={i} className="bg-card border border-edge overflow-hidden">
+              <div className="aspect-[4/3] shimmer" />
+              <div className="p-5 space-y-2">
+                <div className="h-3 w-1/3 shimmer" />
+                <div className="h-5 w-2/3 shimmer" />
+                <div className="h-3 w-full shimmer mt-3" />
+                <div className="h-8 w-1/2 shimmer mt-3" />
               </div>
             </div>
           ))}
         </div>
       ) : data && data.length === 0 ? (
-        <div className="text-center py-20 bg-card border border-border rounded-2xl">
-          <Search className="w-12 h-12 text-muted-foreground/40 mx-auto mb-3" />
-          <h3 className="font-display font-semibold text-lg">No vehicles match your filters</h3>
-          <p className="text-sm text-muted-foreground mt-1">Try widening your price range or removing some filters.</p>
-          <Button onClick={() => setFilters({}) && useAppStore.getState().resetFilters()} variant="outline" className="mt-4">Reset filters</Button>
+        <div className="text-center py-24 bg-card border border-edge">
+          <Search className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" strokeWidth={1} />
+          <h3 className="font-display text-xl font-medium">No vehicles match</h3>
+          <p className="text-sm text-muted-foreground mt-2 font-light">Try widening your price range or removing some filters.</p>
+          <Button onClick={() => resetFilters()} variant="outline" className="mt-4 border-edge">Reset filters</Button>
         </div>
       ) : viewMode === 'grid' ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {data?.map((v, i) => (
             <VehicleCard key={v.id} vehicle={v} index={i} />
           ))}
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {data?.map((v, i) => (
             <VehicleCard key={v.id} vehicle={v} variant="list" index={i} />
           ))}
@@ -372,7 +412,6 @@ export function FavoritesView() {
     queryKey: ['favorites', favorites.join(',')],
     queryFn: async () => {
       if (favorites.length === 0) return []
-      // fetch all then filter; simple approach for prototype
       const r = await fetch('/api/vehicles?limit=200')
       const d = await r.json()
       return (d.vehicles as any[]).filter((v) => favorites.includes(v.id))
@@ -381,27 +420,26 @@ export function FavoritesView() {
   })
 
   return (
-    <div className="container-premium py-6 sm:py-8 space-y-5">
+    <div className="container-premium py-8 sm:py-12 space-y-6">
       <div>
-        <h1 className="font-display text-2xl sm:text-3xl font-bold flex items-center gap-2">
-          <Heart className="w-6 h-6 text-red-500" /> Saved vehicles
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">{favorites.length} saved · synced across your devices</p>
+        <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">Your collection</p>
+        <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">Saved vehicles</h1>
+        <p className="text-sm text-muted-foreground mt-2 font-light">{favorites.length} saved · synced across your devices</p>
       </div>
 
       {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {Array.from({ length: 3 }).map((_, i) => <div key={i} className="bg-card border border-border rounded-2xl overflow-hidden"><div className="aspect-[16/10] shimmer" /><div className="p-4 h-32" /></div>)}
+          {Array.from({ length: 3 }).map((_, i) => <div key={i} className="bg-card border border-edge overflow-hidden"><div className="aspect-[4/3] shimmer" /><div className="p-5 h-32" /></div>)}
         </div>
       ) : favorites.length === 0 ? (
-        <div className="text-center py-20 bg-card border border-border rounded-2xl">
-          <Heart className="w-12 h-12 text-muted-foreground/40 mx-auto mb-3" />
-          <h3 className="font-display font-semibold text-lg">No saved vehicles yet</h3>
-          <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">Tap the heart on any vehicle to save it here. We'll alert you when prices drop.</p>
-          <Button onClick={() => setView('browse')} className="mt-4 bg-brand hover:bg-brand/90 text-brand-foreground">Browse vehicles</Button>
+        <div className="text-center py-24 bg-card border border-edge">
+          <Heart className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" strokeWidth={1} />
+          <h3 className="font-display text-xl font-medium">No saved vehicles yet</h3>
+          <p className="text-sm text-muted-foreground mt-2 max-w-md mx-auto font-light">Tap the heart on any vehicle to save it here. We'll alert you when prices drop.</p>
+          <Button onClick={() => setView('browse')} className="mt-5 bg-foreground hover:bg-foreground/90 text-background">Browse vehicles</Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {data?.map((v, i) => <VehicleCard key={v.id} vehicle={v} index={i} />)}
         </div>
       )}
@@ -448,44 +486,43 @@ export function CompareView() {
   ]
 
   return (
-    <div className="container-premium py-6 sm:py-8 space-y-5">
+    <div className="container-premium py-8 sm:py-12 space-y-6">
       <div className="flex items-end justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-display text-2xl sm:text-3xl font-bold flex items-center gap-2">
-            <GitCompare className="w-6 h-6 text-brand" /> Compare vehicles
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">Side-by-side · up to 3 vehicles</p>
+          <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">Side by side</p>
+          <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">Compare</h1>
+          <p className="text-sm text-muted-foreground mt-2 font-light">Up to 3 vehicles</p>
         </div>
         {compareIds.length > 0 && (
-          <Button variant="outline" onClick={clearCompare}><X className="w-4 h-4 mr-1" /> Clear all</Button>
+          <Button variant="outline" onClick={clearCompare} className="border-edge"><X className="w-4 h-4 mr-1" strokeWidth={1.5} /> Clear all</Button>
         )}
       </div>
 
       {isLoading ? (
-        <div className="text-center py-20">Loading…</div>
+        <div className="text-center py-20 text-muted-foreground">Loading…</div>
       ) : compareIds.length === 0 ? (
-        <div className="text-center py-20 bg-card border border-border rounded-2xl">
-          <GitCompare className="w-12 h-12 text-muted-foreground/40 mx-auto mb-3" />
-          <h3 className="font-display font-semibold text-lg">Nothing to compare yet</h3>
-          <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">Tap the compare icon on any vehicle to add it here. Add 2 or 3 to see them side-by-side.</p>
-          <Button onClick={() => setView('browse')} className="mt-4 bg-brand hover:bg-brand/90 text-brand-foreground">Browse vehicles</Button>
+        <div className="text-center py-24 bg-card border border-edge">
+          <GitCompare className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" strokeWidth={1} />
+          <h3 className="font-display text-xl font-medium">Nothing to compare yet</h3>
+          <p className="text-sm text-muted-foreground mt-2 max-w-md mx-auto font-light">Tap the compare icon on any vehicle to add it here. Add 2 or 3 to see them side-by-side.</p>
+          <Button onClick={() => setView('browse')} className="mt-5 bg-foreground hover:bg-foreground/90 text-background">Browse vehicles</Button>
         </div>
       ) : (
         <div className="overflow-x-auto premium-scroll -mx-4 px-4 sm:mx-0 sm:px-0">
           <table className="w-full min-w-[700px] border-collapse">
             <thead>
               <tr>
-                <th className="text-left text-xs uppercase tracking-wider text-muted-foreground font-medium p-3 w-32">Specification</th>
+                <th className="text-left text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-medium p-3 w-32">Specification</th>
                 {data?.map((v) => {
                   const imgs = JSON.parse(v.images || '[]') as string[]
                   return (
-                    <th key={v.id} className="p-3 align-top min-w-[200px]">
+                    <th key={v.id} className="p-3 align-top min-w-[220px]">
                       <button onClick={() => openDetail(v.slug)} className="block w-full text-left group">
-                        <div className="aspect-[16/10] rounded-xl overflow-hidden bg-muted mb-2">
-                          <img src={imgs[0]} alt={v.title} className="w-full h-full object-cover group-hover:scale-105 transition" />
+                        <div className="aspect-[16/10] overflow-hidden bg-muted mb-3">
+                          <img src={imgs[0]} alt={v.title} className="w-full h-full object-cover img-zoom" />
                         </div>
-                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{v.year} · {v.condition}</p>
-                        <p className="font-display font-semibold text-sm line-clamp-2 group-hover:text-brand transition">{v.title}</p>
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{v.year} · {v.condition}</p>
+                        <p className="font-display font-medium text-base line-clamp-2 mt-1 group-hover:text-brand transition">{v.title}</p>
                       </button>
                     </th>
                   )
@@ -495,9 +532,9 @@ export function CompareView() {
             <tbody>
               {rows.map((row, ri) => (
                 <tr key={row.k} className={cn(ri % 2 === 0 ? 'bg-muted/30' : '')}>
-                  <td className="text-xs uppercase tracking-wider text-muted-foreground font-medium p-3">{row.label}</td>
+                  <td className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-medium p-3">{row.label}</td>
                   {data?.map((v) => (
-                    <td key={v.id} className="p-3 text-sm font-medium">
+                    <td key={v.id} className="p-3 text-sm font-medium font-display">
                       {row.format(v)}
                     </td>
                   ))}
@@ -507,7 +544,7 @@ export function CompareView() {
                 <td className="p-3" />
                 {data?.map((v) => (
                   <td key={v.id} className="p-3">
-                    <Button size="sm" variant="outline" onClick={() => openDetail(v.slug)} className="w-full">View details</Button>
+                    <Button size="sm" variant="outline" onClick={() => openDetail(v.slug)} className="w-full border-edge">View details</Button>
                   </td>
                 ))}
               </tr>
@@ -535,31 +572,32 @@ export function SellView() {
   }
 
   return (
-    <div className="container-premium py-6 sm:py-8 space-y-6">
+    <div className="container-premium py-8 sm:py-12 space-y-8">
       <div>
-        <h1 className="font-display text-2xl sm:text-3xl font-bold">Sell your car</h1>
-        <p className="text-sm text-muted-foreground mt-1">Free for individuals · reach 200,000+ buyers · sell in days, not weeks.</p>
+        <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">For sellers</p>
+        <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">Sell your car</h1>
+        <p className="text-sm text-muted-foreground mt-2 font-light">Free for individuals · reach 200,000+ buyers · sell in days, not weeks.</p>
       </div>
 
-      {/* Steps progress */}
+      {/* Steps */}
       <div className="flex items-center gap-2 text-xs">
         {[1, 2, 3].map((s) => (
           <div key={s} className="flex items-center gap-2 flex-1">
-            <div className={cn('w-7 h-7 rounded-full flex items-center justify-center font-semibold', s === step ? 'bg-foreground text-background' : s < step ? 'bg-brand text-brand-foreground' : 'bg-muted text-muted-foreground')}>
+            <div className={cn('w-8 h-8 rounded-full flex items-center justify-center font-display font-medium', s === step ? 'bg-foreground text-background' : s < step ? 'bg-brand text-brand-foreground' : 'bg-muted text-muted-foreground')}>
               {s < step ? '✓' : s}
             </div>
-            <span className={cn('hidden sm:inline', s === step ? 'font-semibold' : 'text-muted-foreground')}>
+            <span className={cn('hidden sm:inline', s === step ? 'font-medium' : 'text-muted-foreground')}>
               {s === 1 ? 'Vehicle details' : s === 2 ? 'Photos & price' : 'Your contact'}
             </span>
-            {s < 3 && <div className="flex-1 h-0.5 bg-muted" />}
+            {s < 3 && <div className="flex-1 h-px bg-edge" />}
           </div>
         ))}
       </div>
 
-      <div className="bg-card border border-border rounded-2xl p-5 sm:p-6 space-y-4">
+      <div className="bg-card border border-edge p-6 sm:p-8 space-y-5">
         {step === 1 && (
           <>
-            <h2 className="font-display font-semibold text-lg">Tell us about your car</h2>
+            <h2 className="font-display text-xl font-medium">Tell us about your car</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="Make" value={form.make} onChange={(v) => setForm({ ...form, make: v })} placeholder="e.g. Toyota" />
               <Field label="Model" value={form.model} onChange={(v) => setForm({ ...form, model: v })} placeholder="e.g. Prado" />
@@ -571,55 +609,55 @@ export function SellView() {
               <Field label="Mileage (km)" value={form.mileage} onChange={(v) => setForm({ ...form, mileage: v })} placeholder="42000" />
             </div>
             <div className="flex justify-end">
-              <Button onClick={() => setStep(2)} disabled={!form.make || !form.model || !form.year} className="bg-brand hover:bg-brand/90 text-brand-foreground">Continue</Button>
+              <Button onClick={() => setStep(2)} disabled={!form.make || !form.model || !form.year} className="bg-foreground hover:bg-foreground/90 text-background">Continue</Button>
             </div>
           </>
         )}
 
         {step === 2 && (
           <>
-            <h2 className="font-display font-semibold text-lg">Photos & pricing</h2>
+            <h2 className="font-display text-xl font-medium">Photos & pricing</h2>
             <div className="space-y-3">
-              <div className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-brand transition cursor-pointer">
+              <div className="border-2 border-dashed border-edge p-10 text-center hover:border-brand transition cursor-pointer">
                 <div className="text-3xl mb-2">📷</div>
                 <p className="text-sm font-medium">Upload photos</p>
-                <p className="text-xs text-muted-foreground mt-1">Up to 20 photos · first photo is the cover</p>
+                <p className="text-xs text-muted-foreground mt-1 font-light">Up to 20 photos · first photo is the cover</p>
               </div>
               <Field label="Asking price (KES)" value={form.price} onChange={(v) => setForm({ ...form, price: v })} placeholder="5,400,000" />
               <Field label="Exterior color" value={form.exteriorColor} onChange={(v) => setForm({ ...form, exteriorColor: v })} placeholder="Pearl White" />
               <SelectField label="Location" value={form.city} onChange={(v) => setForm({ ...form, city: v })} options={['Nairobi', 'Mombasa', 'Kisumu', 'Nakuru', 'Eldoret', 'Thika', 'Kiambu']} />
               <div>
-                <label className="text-xs uppercase tracking-wider text-muted-foreground">Description</label>
+                <label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Description</label>
                 <textarea
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
                   rows={4}
                   placeholder="Tell buyers about your car's history, condition, service record, and any standout features…"
-                  className="mt-1 w-full p-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-brand resize-none"
+                  className="mt-1.5 w-full p-3 bg-background border border-edge text-sm focus:outline-none focus:border-brand resize-none font-light"
                 />
               </div>
             </div>
             <div className="flex justify-between">
-              <Button variant="outline" onClick={() => setStep(1)}>Back</Button>
-              <Button onClick={() => setStep(3)} disabled={!form.price} className="bg-brand hover:bg-brand/90 text-brand-foreground">Continue</Button>
+              <Button variant="outline" onClick={() => setStep(1)} className="border-edge">Back</Button>
+              <Button onClick={() => setStep(3)} disabled={!form.price} className="bg-foreground hover:bg-foreground/90 text-background">Continue</Button>
             </div>
           </>
         )}
 
         {step === 3 && (
           <>
-            <h2 className="font-display font-semibold text-lg">How can buyers reach you?</h2>
+            <h2 className="font-display text-xl font-medium">How can buyers reach you?</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="Your name" value={form.name} onChange={(v) => setForm({ ...form, name: v })} placeholder="Jane Wanjiku" />
               <Field label="Email" value={form.email} onChange={(v) => setForm({ ...form, email: v })} placeholder="jane@example.com" />
               <Field label="Phone" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} placeholder="+254 7XX XXX XXX" />
             </div>
-            <div className="bg-brand/5 border border-brand/20 rounded-xl p-4 text-xs text-foreground/80">
-              <p className="font-semibold flex items-center gap-1.5"><Shield className="w-4 h-4 text-brand" /> Your privacy is protected</p>
-              <p className="mt-1">Your contact details are only shared with serious buyers who pass our verification check. We never sell your data.</p>
+            <div className="bg-brand/5 border border-brand/20 p-4 text-xs text-foreground/80">
+              <p className="font-medium flex items-center gap-1.5"><Shield className="w-4 h-4 text-brand" strokeWidth={1.5} /> Your privacy is protected</p>
+              <p className="mt-1 font-light">Your contact details are only shared with serious buyers who pass our verification check. We never sell your data.</p>
             </div>
             <div className="flex justify-between">
-              <Button variant="outline" onClick={() => setStep(2)}>Back</Button>
+              <Button variant="outline" onClick={() => setStep(2)} className="border-edge">Back</Button>
               <Button onClick={submit} disabled={!form.name || !form.email} className="bg-brand hover:bg-brand/90 text-brand-foreground">Submit listing</Button>
             </div>
           </>
@@ -633,10 +671,10 @@ export function SellView() {
           { icon: Shield, title: 'Verified buyers', desc: 'We screen every enquiry before it reaches you.' },
           { icon: Award, title: 'Premium listings', desc: 'Boost visibility with sponsored placements.' },
         ].map((v) => (
-          <div key={v.title} className="bg-card border border-border rounded-xl p-4">
-            <v.icon className="w-5 h-5 text-brand mb-2" />
-            <p className="font-semibold text-sm">{v.title}</p>
-            <p className="text-xs text-muted-foreground mt-1">{v.desc}</p>
+          <div key={v.title} className="bg-card border border-edge p-5">
+            <v.icon className="w-5 h-5 text-brand mb-3" strokeWidth={1.5} />
+            <p className="font-display font-medium">{v.title}</p>
+            <p className="text-xs text-muted-foreground mt-1 font-light">{v.desc}</p>
           </div>
         ))}
       </div>
@@ -647,12 +685,12 @@ export function SellView() {
 function Field({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) {
   return (
     <div>
-      <label className="text-xs uppercase tracking-wider text-muted-foreground">{label}</label>
+      <label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{label}</label>
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="mt-1 w-full h-11 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+        className="mt-1.5 w-full h-11 px-3 bg-background border border-edge text-sm focus:outline-none focus:border-brand"
       />
     </div>
   )
@@ -661,11 +699,11 @@ function Field({ label, value, onChange, placeholder }: { label: string; value: 
 function SelectField({ label, value, onChange, options }: { label: string; value: string; onChange: (v: string) => void; options: string[] }) {
   return (
     <div>
-      <label className="text-xs uppercase tracking-wider text-muted-foreground">{label}</label>
+      <label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{label}</label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1 w-full h-11 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+        className="mt-1.5 w-full h-11 px-3 bg-background border border-edge text-sm focus:outline-none focus:border-brand"
       >
         {options.map((o) => <option key={o} value={o}>{o}</option>)}
       </select>
@@ -688,40 +726,41 @@ export function FinanceView() {
   const insurance = price * 0.035
 
   return (
-    <div className="container-premium py-6 sm:py-8 space-y-6">
+    <div className="container-premium py-8 sm:py-12 space-y-8">
       <div>
-        <h1 className="font-display text-2xl sm:text-3xl font-bold flex items-center gap-2"><Calculator className="w-6 h-6 text-brand" /> Finance calculator</h1>
-        <p className="text-sm text-muted-foreground mt-1">Estimate your monthly payment · M-Pesa-backed · 9–22% APR</p>
+        <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">Finance</p>
+        <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">Calculator</h1>
+        <p className="text-sm text-muted-foreground mt-2 font-light">Estimate your monthly payment · M-Pesa-backed · 9–22% APR</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Controls */}
-        <div className="bg-card border border-border rounded-2xl p-5 sm:p-6 space-y-5">
+        <div className="bg-card border border-edge p-6 sm:p-8 space-y-7">
           <div>
-            <div className="flex justify-between text-sm mb-2">
-              <span className="text-muted-foreground">Vehicle price</span>
-              <span className="font-display font-bold">{formatKESFull(price)}</span>
+            <div className="flex justify-between text-xs mb-2">
+              <span className="text-muted-foreground uppercase tracking-[0.2em]">Vehicle price</span>
+              <span className="font-display font-medium text-base">{formatKESFull(price)}</span>
             </div>
             <input type="range" min={500000} max={30000000} step={100000} value={price} onChange={(e) => setPrice(Number(e.target.value))} className="w-full accent-[var(--brand)]" />
           </div>
           <div>
-            <div className="flex justify-between text-sm mb-2">
-              <span className="text-muted-foreground">Down payment</span>
-              <span className="font-display font-bold">{downPct}% · {formatKES((price * downPct) / 100)}</span>
+            <div className="flex justify-between text-xs mb-2">
+              <span className="text-muted-foreground uppercase tracking-[0.2em]">Down payment</span>
+              <span className="font-display font-medium text-base">{downPct}% · {formatKES((price * downPct) / 100)}</span>
             </div>
             <input type="range" min={0} max={60} value={downPct} onChange={(e) => setDownPct(Number(e.target.value))} className="w-full accent-[var(--brand)]" />
           </div>
           <div>
-            <div className="flex justify-between text-sm mb-2">
-              <span className="text-muted-foreground">Loan term</span>
-              <span className="font-display font-bold">{months} months ({(months / 12).toFixed(1)} yrs)</span>
+            <div className="flex justify-between text-xs mb-2">
+              <span className="text-muted-foreground uppercase tracking-[0.2em]">Loan term</span>
+              <span className="font-display font-medium text-base">{months} months ({(months / 12).toFixed(1)} yrs)</span>
             </div>
             <input type="range" min={12} max={84} step={12} value={months} onChange={(e) => setMonths(Number(e.target.value))} className="w-full accent-[var(--brand)]" />
           </div>
           <div>
-            <div className="flex justify-between text-sm mb-2">
-              <span className="text-muted-foreground">Interest rate (APR)</span>
-              <span className="font-display font-bold">{rate}%</span>
+            <div className="flex justify-between text-xs mb-2">
+              <span className="text-muted-foreground uppercase tracking-[0.2em]">Interest rate (APR)</span>
+              <span className="font-display font-medium text-base">{rate}%</span>
             </div>
             <input type="range" min={9} max={22} value={rate} onChange={(e) => setRate(Number(e.target.value))} className="w-full accent-[var(--brand)]" />
           </div>
@@ -729,40 +768,43 @@ export function FinanceView() {
 
         {/* Results */}
         <div className="space-y-4">
-          <div className="bg-gradient-to-br from-brand to-brand/80 text-brand-foreground rounded-2xl p-6 shadow-lg">
-            <p className="text-xs uppercase tracking-wider opacity-80">Estimated monthly payment</p>
-            <p className="font-display text-4xl sm:text-5xl font-bold mt-1">{formatKESFull(Math.round(monthly))}</p>
-            <div className="mt-4 grid grid-cols-2 gap-4 text-sm opacity-90">
-              <div>
-                <p className="text-[10px] uppercase tracking-wider opacity-70">Loan amount</p>
-                <p className="font-semibold">{formatKESFull(Math.round(principal))}</p>
-              </div>
-              <div>
-                <p className="text-[10px] uppercase tracking-wider opacity-70">Total interest</p>
-                <p className="font-semibold">{formatKESFull(Math.round(totalInterest))}</p>
-              </div>
-              <div>
-                <p className="text-[10px] uppercase tracking-wider opacity-70">Total payable</p>
-                <p className="font-semibold">{formatKESFull(Math.round(total))}</p>
-              </div>
-              <div>
-                <p className="text-[10px] uppercase tracking-wider opacity-70">Down payment</p>
-                <p className="font-semibold">{formatKESFull(Math.round((price * downPct) / 100))}</p>
+          <div className="bg-foreground text-background p-6 sm:p-8 relative overflow-hidden">
+            <div className="absolute inset-0 bg-grain opacity-20" />
+            <div className="relative">
+              <p className="text-[10px] uppercase tracking-[0.3em] text-background/60">Estimated monthly</p>
+              <p className="font-display text-4xl sm:text-5xl lg:text-6xl font-medium mt-2 tracking-tight">{formatKESFull(Math.round(monthly))}</p>
+              <div className="mt-6 grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-background/50">Loan amount</p>
+                  <p className="font-display font-medium mt-0.5">{formatKESFull(Math.round(principal))}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-background/50">Total interest</p>
+                  <p className="font-display font-medium mt-0.5">{formatKESFull(Math.round(totalInterest))}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-background/50">Total payable</p>
+                  <p className="font-display font-medium mt-0.5">{formatKESFull(Math.round(total))}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-background/50">Down payment</p>
+                  <p className="font-display font-medium mt-0.5">{formatKESFull(Math.round((price * downPct) / 100))}</p>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="bg-card border border-border rounded-2xl p-5">
-            <h3 className="font-display font-semibold text-sm flex items-center gap-1.5"><Shield className="w-4 h-4 text-brand" /> Insurance estimate</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">Comprehensive cover · ~3.5% of vehicle value annually</p>
+          <div className="bg-card border border-edge p-5">
+            <h3 className="font-display font-medium flex items-center gap-1.5"><Shield className="w-4 h-4 text-brand" strokeWidth={1.5} /> Insurance estimate</h3>
+            <p className="text-xs text-muted-foreground mt-0.5 font-light">Comprehensive cover · ~3.5% of vehicle value annually</p>
             <div className="mt-3 grid grid-cols-2 gap-3">
               <div>
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Annual</p>
-                <p className="font-display font-bold">{formatKESFull(Math.round(insurance))}</p>
+                <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Annual</p>
+                <p className="font-display font-medium text-lg">{formatKESFull(Math.round(insurance))}</p>
               </div>
               <div>
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Monthly</p>
-                <p className="font-display font-bold">{formatKESFull(Math.round(insurance / 12))}</p>
+                <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Monthly</p>
+                <p className="font-display font-medium text-lg">{formatKESFull(Math.round(insurance / 12))}</p>
               </div>
             </div>
           </div>
@@ -772,20 +814,20 @@ export function FinanceView() {
       </div>
 
       {/* Partner lenders */}
-      <div className="bg-card border border-border rounded-2xl p-5">
-        <h3 className="font-display font-semibold">Our lending partners</h3>
-        <p className="text-xs text-muted-foreground mt-1">Compare rates from Kenya's leading vehicle finance providers.</p>
-        <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="bg-card border border-edge p-6">
+        <h3 className="font-display font-medium text-lg">Our lending partners</h3>
+        <p className="text-xs text-muted-foreground mt-1 font-light">Compare rates from Kenya's leading vehicle finance providers.</p>
+        <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
             { name: 'NCBA', rate: '13.5%', note: 'Quick approval' },
             { name: 'KCB', rate: '14.0%', note: 'Salary advance' },
             { name: 'Equity', rate: '13.0%', note: 'M-Pesa linked' },
             { name: 'Stanbic', rate: '12.5%', note: 'Premium clients' },
           ].map((l) => (
-            <div key={l.name} className="border border-border rounded-xl p-3 text-center">
-              <p className="font-display font-bold">{l.name}</p>
-              <p className="text-brand font-semibold text-sm">{l.rate}</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">{l.note}</p>
+            <div key={l.name} className="border border-edge p-4 text-center">
+              <p className="font-display font-medium text-lg">{l.name}</p>
+              <p className="text-brand font-semibold text-sm mt-0.5">{l.rate}</p>
+              <p className="text-[10px] text-muted-foreground mt-1 font-light">{l.note}</p>
             </div>
           ))}
         </div>
@@ -803,47 +845,48 @@ export function DealersView() {
   })
 
   return (
-    <div className="container-premium py-6 sm:py-8 space-y-5">
+    <div className="container-premium py-8 sm:py-12 space-y-6">
       <div>
-        <h1 className="font-display text-2xl sm:text-3xl font-bold">Verified dealers</h1>
-        <p className="text-sm text-muted-foreground mt-1">Every dealer vetted · every car inspected · peace of mind guaranteed.</p>
+        <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">Verified partners</p>
+        <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">Dealers</h1>
+        <p className="text-sm text-muted-foreground mt-2 font-light">Every dealer vetted · every car inspected · peace of mind guaranteed.</p>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {isLoading ? (
-          Array.from({ length: 6 }).map((_, i) => <div key={i} className="bg-card border border-border rounded-2xl h-48 shimmer" />)
+          Array.from({ length: 6 }).map((_, i) => <div key={i} className="bg-card border border-edge h-56 shimmer" />)
         ) : data?.map((d, i) => (
           <motion.div
             key={d.id}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: i * 0.04 }}
-            className="bg-card border border-border rounded-2xl p-5 hover:shadow-md transition"
+            transition={{ duration: 0.4, delay: i * 0.04 }}
+            className="bg-card border border-edge p-6 hover:border-foreground/20 transition"
           >
             <div className="flex items-start gap-3">
-              <div className="w-14 h-14 rounded-2xl bg-foreground text-background flex items-center justify-center font-display font-bold text-xl shrink-0">
+              <div className="w-14 h-14 bg-foreground text-background flex items-center justify-center font-display font-medium text-xl shrink-0">
                 {d.name.charAt(0)}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <h3 className="font-display font-semibold truncate">{d.name}</h3>
-                  {d.isVerified && <BadgeCheck className="w-4 h-4 text-brand shrink-0" />}
-                  {d.isPremium && <Award className="w-3.5 h-3.5 text-brand shrink-0" />}
+                  <h3 className="font-display font-medium text-lg truncate">{d.name}</h3>
+                  {d.isVerified && <BadgeCheck className="w-4 h-4 text-brand shrink-0" strokeWidth={1.5} />}
+                  {d.isPremium && <Award className="w-3.5 h-3.5 text-brand shrink-0" strokeWidth={1.5} />}
                 </div>
-                <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5"><MapPin className="w-3 h-3" />{d.city}, {d.region}</p>
-                <div className="mt-2 flex flex-wrap gap-2 text-xs">
+                <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5"><MapPin className="w-3 h-3" strokeWidth={1.5} />{d.city}, {d.region}</p>
+                <div className="mt-3 flex flex-wrap gap-3 text-xs">
                   <span className="inline-flex items-center gap-1">
-                    <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                    <span className="font-semibold">{d.rating}</span>
+                    <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
+                    <span className="font-semibold font-display">{d.rating}</span>
                     <span className="text-muted-foreground">({formatNumber(d.reviewsCount)})</span>
                   </span>
                   <span className="text-muted-foreground">{d._count.vehicles} in stock</span>
                 </div>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground line-clamp-2 mt-3">{d.description}</p>
-            <div className="mt-3 pt-3 border-t border-border flex items-center justify-between text-xs">
+            <p className="text-xs text-muted-foreground line-clamp-2 mt-4 font-light">{d.description}</p>
+            <div className="mt-4 pt-4 border-t border-edge flex items-center justify-between text-xs">
               <span className="text-muted-foreground">{formatNumber(d.totalSales)} sold</span>
-              <span className="text-brand font-medium">View inventory →</span>
+              <span className="text-brand font-medium inline-flex items-center gap-0.5">View inventory <ArrowUpRight className="w-3 h-3" strokeWidth={1.5} /></span>
             </div>
           </motion.div>
         ))}
@@ -861,34 +904,39 @@ export function ArticlesView() {
   })
 
   return (
-    <div className="container-premium py-6 sm:py-8 space-y-5">
+    <div className="container-premium py-8 sm:py-12 space-y-6">
       <div>
-        <h1 className="font-display text-2xl sm:text-3xl font-bold">Guides & insights</h1>
-        <p className="text-sm text-muted-foreground mt-1">Buy smarter · drive better · own with confidence.</p>
+        <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">Journal</p>
+        <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">Guides & insights</h1>
+        <p className="text-sm text-muted-foreground mt-2 font-light">Buy smarter · drive better · own with confidence.</p>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
         {isLoading ? (
-          Array.from({ length: 4 }).map((_, i) => <div key={i} className="bg-card border border-border rounded-2xl h-80 shimmer" />)
+          Array.from({ length: 4 }).map((_, i) => <div key={i} className="bg-card border border-edge h-96 shimmer" />)
         ) : data?.map((a, i) => (
           <motion.article
             key={a.id}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: i * 0.05 }}
-            className="group bg-card border border-border rounded-2xl overflow-hidden hover:shadow-md transition cursor-pointer"
+            transition={{ duration: 0.4, delay: i * 0.05 }}
+            className="group cursor-pointer"
           >
-            <div className="aspect-[16/9] bg-gradient-to-br from-brand/10 to-accent/40 flex items-center justify-center">
-              <Newspaper className="w-12 h-12 text-brand/40 group-hover:scale-110 transition" />
-            </div>
-            <div className="p-5">
-              <p className="text-[10px] uppercase tracking-wider text-brand font-medium">{a.category}</p>
-              <h3 className="font-display font-semibold text-lg mt-1 line-clamp-2 group-hover:text-brand transition">{a.title}</h3>
-              <p className="text-xs text-muted-foreground mt-2 line-clamp-3">{a.excerpt}</p>
-              <div className="mt-4 flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">{a.author}</span>
-                <span className="text-muted-foreground">{a.readMins} min read</span>
+            <div className="aspect-[16/10] bg-muted overflow-hidden mb-4 relative">
+              <img
+                src={i === 0 ? 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=1200&q=80' :
+                     i === 1 ? 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=1200&q=80' :
+                     i === 2 ? 'https://images.unsplash.com/photo-1542362567-b07e54358753?w=1200&q=80' :
+                               'https://images.unsplash.com/photo-1519440767-ec5d7d65d127?w=1200&q=80'}
+                alt=""
+                className="w-full h-full object-cover img-zoom"
+              />
+              <div className="absolute top-3 left-3">
+                <span className="bg-background/95 backdrop-blur text-foreground text-[9px] font-semibold tracking-wider uppercase px-2 py-1">{a.category}</span>
               </div>
             </div>
+            <h3 className="font-display text-xl lg:text-2xl font-medium leading-tight line-clamp-2 group-hover:text-brand transition">{a.title}</h3>
+            <p className="text-sm text-muted-foreground mt-2 line-clamp-2 font-light">{a.excerpt}</p>
+            <p className="text-[10px] text-muted-foreground mt-3 uppercase tracking-wider">{a.author} · {a.readMins} min read</p>
           </motion.article>
         ))}
       </div>
@@ -896,7 +944,7 @@ export function ArticlesView() {
   )
 }
 
-// ============== RECENTLY VIEWED TRAY ==============
+// ============== RECENTLY VIEWED ==============
 export function RecentlyViewedTray() {
   const slugs = useAppStore((s) => s.recentlyViewed)
   const openDetail = useAppStore((s) => s.openDetail)
@@ -915,21 +963,26 @@ export function RecentlyViewedTray() {
 
   if (!data || data.length === 0) return null
   return (
-    <section className="container-premium py-8">
-      <h2 className="font-display text-lg font-semibold mb-3">Recently viewed</h2>
-      <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
+    <section className="container-premium py-12 sm:py-16">
+      <div className="flex items-end justify-between mb-6">
+        <div>
+          <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">Continue browsing</p>
+          <h2 className="font-display text-2xl sm:text-3xl font-medium tracking-tight">Recently viewed</h2>
+        </div>
+      </div>
+      <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
         {data.slice(0, 8).map((v: any) => (
           <button
             key={v.id}
             onClick={() => openDetail(v.slug)}
-            className="shrink-0 w-40 sm:w-48 text-left group"
+            className="shrink-0 w-44 sm:w-52 text-left group"
           >
-            <div className="aspect-[16/10] rounded-xl overflow-hidden bg-muted">
-              <img src={JSON.parse(v.images || '[]')[0]} alt={v.title} className="w-full h-full object-cover group-hover:scale-105 transition" />
+            <div className="aspect-[4/3] overflow-hidden bg-muted mb-2">
+              <img src={JSON.parse(v.images || '[]')[0]} alt={v.title} className="w-full h-full object-cover img-zoom" />
             </div>
-            <p className="text-[10px] text-muted-foreground mt-1.5">{v.year}</p>
-            <p className="text-sm font-semibold truncate">{v.title}</p>
-            <p className="text-xs font-bold text-brand">{formatKES(v.price)}</p>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1.5">{v.year}</p>
+            <p className="text-sm font-medium font-display truncate">{v.title}</p>
+            <p className="text-xs font-semibold text-brand mt-0.5">{formatKES(v.price)}</p>
           </button>
         ))}
       </div>

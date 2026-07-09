@@ -57,7 +57,7 @@ export function AdminView() {
       <div className="flex flex-col lg:flex-row gap-5">
         {/* Sidebar */}
         <aside className="lg:w-56 shrink-0">
-          <div className="bg-card border border-border rounded-2xl p-3 lg:sticky lg:top-20">
+          <div className="bg-card border border-edge rounded-sm p-3 lg:sticky lg:top-20">
             <div className="flex lg:flex-col gap-1 overflow-x-auto no-scrollbar">
               {NAV.map((n) => (
                 <button
@@ -118,25 +118,26 @@ function OverviewTab() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="font-display text-2xl sm:text-3xl font-bold">Dashboard</h1>
-        <p className="text-sm text-muted-foreground mt-1">Welcome back, Admin. Here's what's happening today.</p>
+        <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">Admin</p>
+        <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">Dashboard</h1>
+        <p className="text-sm text-muted-foreground mt-2 font-light">Welcome back, Admin. Here's what's happening today.</p>
       </div>
 
       {/* KPI grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {kpis.map((k) => (
-          <div key={k.label} className="bg-card border border-border rounded-2xl p-4">
+          <div key={k.label} className="bg-card border border-edge rounded-sm p-4">
             <div className="flex items-start justify-between">
-              <div className="w-9 h-9 rounded-lg bg-brand/10 flex items-center justify-center">
-                <k.icon className="w-4 h-4 text-brand" />
+              <div className="w-9 h-9 bg-brand/10 flex items-center justify-center">
+                <k.icon className="w-4 h-4 text-brand" strokeWidth={1.5} />
               </div>
               <span className={cn('text-[10px] font-semibold inline-flex items-center gap-0.5', k.up ? 'text-brand' : 'text-red-500')}>
                 {k.up ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
                 {k.delta}
               </span>
             </div>
-            <p className="text-xs text-muted-foreground mt-3">{k.label}</p>
-            <p className="font-display text-lg sm:text-xl font-bold mt-0.5">{k.value}</p>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mt-3">{k.label}</p>
+            <p className="font-display text-xl sm:text-2xl font-medium mt-0.5 tracking-tight">{k.value}</p>
           </div>
         ))}
       </div>
@@ -144,10 +145,10 @@ function OverviewTab() {
       {/* Charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Leads trend */}
-        <div className="lg:col-span-2 bg-card border border-border rounded-2xl p-5">
+        <div className="lg:col-span-2 bg-card border border-edge rounded-sm p-5">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="font-display font-semibold">Leads · last 14 days</h3>
+              <h3 className="font-display font-medium text-base">Leads · last 14 days</h3>
               <p className="text-xs text-muted-foreground">Inquiry, test drive, finance & offer requests</p>
             </div>
             <Button variant="outline" size="sm" onClick={() => toast('Exporting…')}>
@@ -177,8 +178,8 @@ function OverviewTab() {
         </div>
 
         {/* Lead types */}
-        <div className="bg-card border border-border rounded-2xl p-5">
-          <h3 className="font-display font-semibold">Lead types</h3>
+        <div className="bg-card border border-edge rounded-sm p-5">
+          <h3 className="font-display font-medium text-base">Lead types</h3>
           <p className="text-xs text-muted-foreground">Distribution by intent</p>
           <div className="h-48 mt-3">
             <ResponsiveContainer width="100%" height="100%">
@@ -210,8 +211,8 @@ function OverviewTab() {
 
       {/* Top makes + Lead status */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="bg-card border border-border rounded-2xl p-5">
-          <h3 className="font-display font-semibold">Top makes</h3>
+        <div className="bg-card border border-edge rounded-sm p-5">
+          <h3 className="font-display font-medium text-base">Top makes</h3>
           <p className="text-xs text-muted-foreground">Inventory distribution by manufacturer</p>
           <div className="h-56 mt-3">
             <ResponsiveContainer width="100%" height="100%">
@@ -229,8 +230,8 @@ function OverviewTab() {
           </div>
         </div>
 
-        <div className="bg-card border border-border rounded-2xl p-5">
-          <h3 className="font-display font-semibold">Lead status funnel</h3>
+        <div className="bg-card border border-edge rounded-sm p-5">
+          <h3 className="font-display font-medium text-base">Lead status funnel</h3>
           <p className="text-xs text-muted-foreground">Conversion pipeline</p>
           <div className="mt-4 space-y-3">
             {c.leadsByStatus.map((s: any, i: number) => {
@@ -256,12 +257,12 @@ function OverviewTab() {
       </div>
 
       {/* Top viewed vehicles */}
-      <div className="bg-card border border-border rounded-2xl p-5">
-        <h3 className="font-display font-semibold mb-3">Top viewed vehicles</h3>
+      <div className="bg-card border border-edge rounded-sm p-5">
+        <h3 className="font-display font-medium text-base mb-3">Top viewed vehicles</h3>
         <div className="space-y-2">
           {data.topViewed.map((v: any, i: number) => (
             <div key={v.id} className="flex items-center gap-3 p-2 hover:bg-muted/40 rounded-lg transition">
-              <span className="font-display font-bold text-lg text-muted-foreground w-6">#{i + 1}</span>
+              <span className="font-display font-medium text-lg text-muted-foreground w-6">#{i + 1}</span>
               <img src={JSON.parse(v.images || '[]')[0]} alt={v.title} className="w-14 h-14 rounded-lg object-cover" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold truncate">{v.title}</p>
@@ -300,7 +301,7 @@ function InventoryTab() {
     <div className="space-y-4">
       <div className="flex items-end justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-display text-2xl sm:text-3xl font-bold">Inventory</h1>
+          <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">Inventory</h1>
           <p className="text-sm text-muted-foreground mt-1">{data?.length || 0} vehicles · {filtered?.length || 0} shown</p>
         </div>
         <div className="flex gap-2">
@@ -313,7 +314,7 @@ function InventoryTab() {
         </div>
       </div>
 
-      <div className="bg-card border border-border rounded-2xl overflow-hidden">
+      <div className="bg-card border border-edge rounded-sm overflow-hidden">
         <div className="overflow-x-auto premium-scroll">
           <table className="w-full min-w-[800px] text-sm">
             <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
@@ -330,7 +331,7 @@ function InventoryTab() {
             </thead>
             <tbody>
               {filtered?.map((v) => (
-                <tr key={v.id} className="border-t border-border hover:bg-muted/30">
+                <tr key={v.id} className="border-t border-edge hover:bg-muted/30">
                   <td className="p-3">
                     <div className="flex items-center gap-2.5">
                       <img src={JSON.parse(v.images || '[]')[0]} alt={v.title} className="w-12 h-10 rounded-md object-cover" />
@@ -391,7 +392,7 @@ function LeadsTab() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="font-display text-2xl sm:text-3xl font-bold">Leads</h1>
+        <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">Leads</h1>
         <p className="text-sm text-muted-foreground mt-1">{data?.length || 0} leads · filter and manage</p>
       </div>
 
@@ -402,7 +403,7 @@ function LeadsTab() {
             onClick={() => setStatusFilter(s)}
             className={cn(
               'shrink-0 text-xs px-3 py-1.5 rounded-full border transition capitalize',
-              statusFilter === s ? 'bg-foreground text-background border-foreground' : 'bg-card border-border hover:border-foreground/30',
+              statusFilter === s ? 'bg-foreground text-background border-foreground' : 'bg-card border-edge hover:border-foreground/30',
             )}
           >{s}</button>
         ))}
@@ -410,7 +411,7 @@ function LeadsTab() {
 
       <div className="space-y-2">
         {data?.map((l) => (
-          <div key={l.id} className="bg-card border border-border rounded-xl p-4 hover:shadow-sm transition">
+          <div key={l.id} className="bg-card border border-edge rounded-sm p-4 hover:shadow-sm transition">
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center font-display font-semibold text-sm shrink-0">
                 {l.name.charAt(0)}
@@ -457,7 +458,7 @@ function LeadsTab() {
           </div>
         ))}
         {data?.length === 0 && (
-          <div className="text-center py-16 bg-card border border-border rounded-2xl">
+          <div className="text-center py-16 bg-card border border-edge rounded-sm">
             <MessageSquare className="w-10 h-10 text-muted-foreground/40 mx-auto mb-2" />
             <p className="text-sm text-muted-foreground">No leads in this category.</p>
           </div>
@@ -477,15 +478,15 @@ function DealersTab() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="font-display text-2xl sm:text-3xl font-bold">Dealers</h1>
+        <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">Dealers</h1>
         <p className="text-sm text-muted-foreground mt-1">{data?.length || 0} dealers · manage verifications</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {data?.map((d) => (
-          <div key={d.id} className="bg-card border border-border rounded-2xl p-4">
+          <div key={d.id} className="bg-card border border-edge rounded-sm p-4">
             <div className="flex items-start gap-3">
-              <div className="w-12 h-12 rounded-xl bg-foreground text-background flex items-center justify-center font-display font-bold shrink-0">
+              <div className="w-12 h-12 rounded-sm bg-foreground text-background flex items-center justify-center font-display font-bold shrink-0">
                 {d.name.charAt(0)}
               </div>
               <div className="flex-1 min-w-0">
@@ -524,14 +525,14 @@ function AnalyticsTab() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="font-display text-2xl sm:text-3xl font-bold">Analytics</h1>
+        <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">Analytics</h1>
         <p className="text-sm text-muted-foreground mt-1">Deep dive into marketplace performance</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Body type distribution */}
-        <div className="bg-card border border-border rounded-2xl p-5">
-          <h3 className="font-display font-semibold">Body type mix</h3>
+        <div className="bg-card border border-edge rounded-sm p-5">
+          <h3 className="font-display font-medium text-base">Body type mix</h3>
           <div className="h-64 mt-3">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -547,8 +548,8 @@ function AnalyticsTab() {
         </div>
 
         {/* Fuel type distribution */}
-        <div className="bg-card border border-border rounded-2xl p-5">
-          <h3 className="font-display font-semibold">Fuel type mix</h3>
+        <div className="bg-card border border-edge rounded-sm p-5">
+          <h3 className="font-display font-medium text-base">Fuel type mix</h3>
           <div className="h-64 mt-3">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data.charts.topFuel}>
@@ -563,8 +564,8 @@ function AnalyticsTab() {
         </div>
 
         {/* Top dealers */}
-        <div className="bg-card border border-border rounded-2xl p-5 lg:col-span-2">
-          <h3 className="font-display font-semibold">Top dealers by inventory</h3>
+        <div className="bg-card border border-edge rounded-sm p-5 lg:col-span-2">
+          <h3 className="font-display font-medium text-base">Top dealers by inventory</h3>
           <div className="h-64 mt-3">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data.charts.topDealers} layout="vertical" margin={{ left: 50 }}>
@@ -586,10 +587,10 @@ function UsersTab() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="font-display text-2xl sm:text-3xl font-bold">Users</h1>
+        <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">Users</h1>
         <p className="text-sm text-muted-foreground mt-1">Manage user accounts and roles</p>
       </div>
-      <div className="bg-card border border-border rounded-2xl p-8 text-center text-sm text-muted-foreground">
+      <div className="bg-card border border-edge rounded-sm p-8 text-center text-sm text-muted-foreground">
         <Users className="w-10 h-10 mx-auto mb-2 opacity-40" />
         User management interface — wire to auth provider for production.
       </div>
@@ -601,10 +602,10 @@ function SettingsTab() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="font-display text-2xl sm:text-3xl font-bold">Settings</h1>
+        <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">Settings</h1>
         <p className="text-sm text-muted-foreground mt-1">Site configuration & integrations</p>
       </div>
-      <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
+      <div className="bg-card border border-edge rounded-sm p-5 space-y-4">
         <div>
           <h3 className="font-display font-semibold text-sm">Marketplace</h3>
           <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
