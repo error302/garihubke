@@ -12,6 +12,7 @@ import {
   LayoutGrid, ChevronRight, ArrowUpRight,
 } from 'lucide-react'
 import { formatKES, formatKESFull, formatNumber, formatMileage } from '@/lib/format'
+import { DEAL_BADGE_STYLES } from '@/lib/market'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
@@ -347,6 +348,43 @@ export function BrowseView() {
       </div>
       <FilterBar />
 
+      {/* Quick filter chips */}
+      <div className="flex flex-wrap gap-2">
+        {[
+          { label: 'Under KES 3M', filters: { maxPrice: 3000000, minPrice: undefined as any } },
+          { label: 'KES 3M–8M', filters: { minPrice: 3000000, maxPrice: 8000000 } },
+          { label: 'Premium', filters: { premium: true } },
+          { label: 'SUVs', filters: { bodyType: 'SUV' } },
+          { label: 'Pickups', filters: { bodyType: 'Pickup' } },
+          { label: 'Electric', filters: { fuelType: 'Electric' } },
+          { label: 'Hybrid', filters: { fuelType: 'Hybrid' } },
+          { label: '4WD', filters: { drivetrain: '4WD' } },
+          { label: 'New', filters: { condition: 'New' } },
+          { label: 'Best deals', filters: { sort: 'deals' } },
+        ].map((chip) => {
+          const isActive = Object.entries(chip.filters).every(([k, v]) => (filters as any)[k] === v)
+          return (
+            <button
+              key={chip.label}
+              onClick={() => {
+                if (isActive) {
+                  // Remove this chip's filters
+                  Object.keys(chip.filters).forEach((k) => setFilters({ [k]: undefined } as any))
+                } else {
+                  setFilters(chip.filters as any)
+                }
+              }}
+              className={cn(
+                'text-xs px-3 py-1.5 border transition',
+                isActive ? 'bg-foreground text-background border-foreground' : 'bg-card border-edge hover:border-foreground/30',
+              )}
+            >
+              {chip.label}
+            </button>
+          )
+        })}
+      </div>
+
       {/* View toggle */}
       <div className="flex items-center justify-between">
         <div className="flex gap-px bg-edge border border-edge">
@@ -515,12 +553,18 @@ export function CompareView() {
                 <th className="text-left text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-medium p-3 w-32">Specification</th>
                 {data?.map((v) => {
                   const imgs = JSON.parse(v.images || '[]') as string[]
+                  const deal = (v as any).deal
                   return (
                     <th key={v.id} className="p-3 align-top min-w-[220px]">
                       <button onClick={() => openDetail(v.slug)} className="block w-full text-left group">
                         <div className="aspect-[16/10] overflow-hidden bg-muted mb-3">
                           <img src={imgs[0]} alt={v.title} className="w-full h-full object-cover img-zoom" />
                         </div>
+                        {deal && deal.rating !== 'fair' && (
+                          <span className={cn('inline-block text-[9px] font-semibold tracking-wider uppercase px-2 py-0.5 mb-1', DEAL_BADGE_STYLES[deal.rating as keyof typeof DEAL_BADGE_STYLES])}>
+                            {deal.label}
+                          </span>
+                        )}
                         <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{v.year} · {v.condition}</p>
                         <p className="font-display font-medium text-base line-clamp-2 mt-1 group-hover:text-brand transition">{v.title}</p>
                       </button>
@@ -530,16 +574,37 @@ export function CompareView() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((row, ri) => (
-                <tr key={row.k} className={cn(ri % 2 === 0 ? 'bg-muted/30' : '')}>
-                  <td className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-medium p-3">{row.label}</td>
-                  {data?.map((v) => (
-                    <td key={v.id} className="p-3 text-sm font-medium font-display">
-                      {row.format(v)}
-                    </td>
-                  ))}
-                </tr>
-              ))}
+              {rows.map((row, ri) => {
+                // Determine which vehicle is "best" for this row
+                let bestIdx = -1
+                if (data && data.length > 1) {
+                  const values = data.map((v) => v[row.k as keyof typeof v])
+                  if (row.k === 'price' || row.k === 'mileage') {
+                    // Lower is better
+                    const numericVals = values.map((v) => typeof v === 'number' ? v : Infinity)
+                    const min = Math.min(...numericVals)
+                    bestIdx = numericVals.indexOf(min)
+                  } else if (row.k === 'year' || row.k === 'horsepower' || row.k === 'torque' || row.k === 'viewsCount' || row.k === 'favoritesCount') {
+                    // Higher is better
+                    const numericVals = values.map((v) => typeof v === 'number' ? v : -Infinity)
+                    const max = Math.max(...numericVals)
+                    bestIdx = numericVals.indexOf(max)
+                  }
+                }
+                return (
+                  <tr key={row.k} className={cn(ri % 2 === 0 ? 'bg-muted/30' : '')}>
+                    <td className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-medium p-3">{row.label}</td>
+                    {data?.map((v, vi) => (
+                      <td key={v.id} className={cn('p-3 text-sm font-medium font-display relative', bestIdx === vi && 'bg-brand/5')}>
+                        {bestIdx === vi && (
+                          <span className="absolute top-1 right-1 text-[9px] text-brand font-semibold uppercase">★ Best</span>
+                        )}
+                        {row.format(v)}
+                      </td>
+                    ))}
+                  </tr>
+                )
+              })}
               <tr>
                 <td className="p-3" />
                 {data?.map((v) => (

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { computeDealRating, estimateMonthlyPayment, computeDaysOnMarket, getSpecialBadges } from '@/lib/market'
 
-// GET /api/vehicles — list with filters
+// GET /api/vehicles — list with filters, includes deal rating + monthly payment
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const make = searchParams.get('make')
@@ -55,11 +56,35 @@ export async function GET(req: NextRequest) {
   if (sort === 'mileage-asc') orderBy = { mileage: 'asc' }
   if (sort === 'popular') orderBy = { viewsCount: 'desc' }
 
-  const vehicles = await db.vehicle.findMany({
+  // Fetch ALL active vehicles for market comparison (needed for deal rating)
+  const allVehicles = await db.vehicle.findMany({ where: { status: 'active' } })
+
+  let vehicles = await db.vehicle.findMany({
     where,
     orderBy,
     take: limit,
     include: { dealer: true },
   })
-  return NextResponse.json({ vehicles })
+
+  // Enrich each vehicle with deal rating, monthly payment, days on market, special badges
+  let enriched = vehicles.map((v) => {
+    const deal = computeDealRating(v, allVehicles)
+    const monthlyPayment = estimateMonthlyPayment(v.price)
+    const daysOnMarket = computeDaysOnMarket(v.createdAt)
+    const specialBadges = getSpecialBadges(v)
+    return {
+      ...v,
+      deal,
+      monthlyPayment,
+      daysOnMarket,
+      specialBadges,
+    }
+  })
+
+  // If sorting by deals, re-sort after enrichment (best savings % first)
+  if (sort === 'deals') {
+    enriched.sort((a, b) => b.deal.savingsPct - a.deal.savingsPct)
+  }
+
+  return NextResponse.json({ vehicles: enriched })
 }

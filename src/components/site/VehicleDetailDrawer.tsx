@@ -8,11 +8,12 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useQuery } from '@tanstack/react-query'
 import { formatKES, formatKESFull, formatMileage, formatNumber, formatRelativeTime, computeLoan, computeInsurance } from '@/lib/format'
+import { DEAL_BADGE_STYLES } from '@/lib/market'
 import { VehicleCard } from './VehicleCard'
 import {
   X, Heart, Share2, GitCompare, BadgeCheck, Sparkles, Phone, MessageCircle,
   Gauge, Fuel, Settings2, Calendar, MapPin, Cog, Users, DoorOpen, Zap, Shield,
-  Eye, Calculator, Star, Send, Mail, CheckCircle2, ChevronLeft, ChevronRight, Award, TrendingUp,
+  Eye, Calculator, Star, Send, Mail, CheckCircle2, ChevronLeft, ChevronRight, Award, TrendingUp, Clock,
 } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
@@ -194,6 +195,7 @@ export function VehicleDetailDrawer() {
                     <TabsTrigger value="overview" className="data-[state=active]:bg-background data-[state=active]:shadow-none text-xs">Overview</TabsTrigger>
                     <TabsTrigger value="specs" className="data-[state=active]:bg-background data-[state=active]:shadow-none text-xs">Specs</TabsTrigger>
                     <TabsTrigger value="features" className="data-[state=active]:bg-background data-[state=active]:shadow-none text-xs">Features</TabsTrigger>
+                    <TabsTrigger value="market" className="data-[state=active]:bg-background data-[state=active]:shadow-none text-xs">Market</TabsTrigger>
                     <TabsTrigger value="finance" className="data-[state=active]:bg-background data-[state=active]:shadow-none text-xs">Finance</TabsTrigger>
                     <TabsTrigger value="dealer" className="data-[state=active]:bg-background data-[state=active]:shadow-none text-xs">Dealer</TabsTrigger>
                     <TabsTrigger value="reviews" className="data-[state=active]:bg-background data-[state=active]:shadow-none text-xs">Reviews ({reviews.length})</TabsTrigger>
@@ -274,6 +276,11 @@ export function VehicleDetailDrawer() {
                         ))}
                       </div>
                     )}
+                  </TabsContent>
+
+                  {/* Market Analysis */}
+                  <TabsContent value="market" className="mt-5 space-y-4">
+                    <MarketAnalysis vehicle={v} comparables={data?.comparables || []} />
                   </TabsContent>
 
                   {/* Finance */}
@@ -491,6 +498,134 @@ function FinancePreview({ price }: { price: number }) {
           <div>
             <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Monthly equivalent</p>
             <p className="font-display font-semibold text-lg">{formatKESFull(Math.round(ins.monthly))}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Market Analysis tab — price vs comparable listings
+function MarketAnalysis({ vehicle, comparables }: { vehicle: any; comparables: any[] }) {
+  const deal = vehicle.deal
+  const monthlyPayment = vehicle.monthlyPayment
+  const daysOnMarket = vehicle.daysOnMarket
+
+  if (!deal) return <p className="text-sm text-muted-foreground">Market analysis unavailable.</p>
+
+  return (
+    <div className="space-y-4">
+      {/* Deal rating hero */}
+      <div className={cn('p-5 text-center', deal.rating === 'great' ? 'bg-emerald-500/10' : deal.rating === 'good' ? 'bg-emerald-500/5' : deal.rating === 'high' ? 'bg-amber-500/10' : 'bg-muted/40')}>
+        <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">Deal rating</p>
+        <div className="flex items-center justify-center gap-2 mb-1">
+          <div className="flex gap-1">
+            {['great', 'good', 'fair', 'high'].map((r) => (
+              <div
+                key={r}
+                className={cn(
+                  'w-3 h-3 rounded-full',
+                  deal.rating === r ? DEAL_BADGE_STYLES[r as keyof typeof DEAL_BADGE_STYLES].split(' ')[0] : 'bg-muted-foreground/20',
+                )}
+              />
+            ))}
+          </div>
+        </div>
+        <p className="font-display text-2xl font-medium">{deal.label}</p>
+        {deal.belowMarket && deal.savings > 0 && (
+          <p className="text-sm text-muted-foreground mt-1 font-light">
+            <span className="text-brand font-medium">{formatKES(deal.savings)}</span> below market average
+            ({deal.savingsPct}% off)
+          </p>
+        )}
+      </div>
+
+      {/* Price comparison stats */}
+      <div className="grid grid-cols-3 gap-2">
+        <div className="bg-card border border-edge p-3 text-center">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">This car</p>
+          <p className="font-display font-semibold text-sm mt-1">{formatKES(vehicle.price)}</p>
+        </div>
+        <div className="bg-card border border-edge p-3 text-center">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Market avg</p>
+          <p className="font-display font-semibold text-sm mt-1">{formatKES(deal.marketAvg)}</p>
+        </div>
+        <div className="bg-card border border-edge p-3 text-center">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Est. monthly</p>
+          <p className="font-display font-semibold text-sm mt-1 text-brand">{monthlyPayment ? formatKES(monthlyPayment) : '—'}</p>
+        </div>
+      </div>
+
+      {/* Price distribution chart */}
+      {comparables.length > 0 && (
+        <div className="bg-card border border-edge p-5">
+          <h4 className="font-display font-medium text-sm mb-1">Price comparison</h4>
+          <p className="text-xs text-muted-foreground mb-4 font-light">This vehicle vs. {comparables.length} comparable {comparables.length === 1 ? 'listing' : 'listings'} (same make, ±2 years)</p>
+          <div className="space-y-2">
+            {/* This vehicle bar */}
+            <div className="flex items-center gap-2">
+              <div className="w-20 text-[10px] uppercase tracking-wider text-brand font-medium">This car</div>
+              <div className="flex-1 h-7 bg-muted relative">
+                <div
+                  className="absolute h-full bg-brand flex items-center justify-end px-2"
+                  style={{ width: `${Math.min(100, (vehicle.price / Math.max(...comparables.map((c) => c.price), vehicle.price)) * 100)}%` }}
+                >
+                  <span className="text-[9px] text-brand-foreground font-medium">{formatKES(vehicle.price)}</span>
+                </div>
+              </div>
+            </div>
+            {/* Comparable bars */}
+            {comparables.slice(0, 8).map((c) => {
+              const maxPrice = Math.max(...comparables.map((cc) => cc.price), vehicle.price)
+              return (
+                <div key={c.id} className="flex items-center gap-2">
+                  <div className="w-20 text-[10px] text-muted-foreground truncate">{c.year}</div>
+                  <div className="flex-1 h-7 bg-muted relative">
+                    <div
+                      className={cn('absolute h-full flex items-center justify-end px-2', c.price < vehicle.price ? 'bg-emerald-500/60' : 'bg-foreground/30')}
+                      style={{ width: `${Math.min(100, (c.price / maxPrice) * 100)}%` }}
+                    >
+                      <span className="text-[9px] text-foreground font-medium">{formatKES(c.price)}</span>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Market insights */}
+      <div className="bg-card border border-edge p-5 space-y-3">
+        <h4 className="font-display font-medium text-sm">Market insights</h4>
+        <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="flex items-center gap-2">
+            <Clock className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Days on market</p>
+              <p className="font-medium">{daysOnMarket} days</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Eye className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Views</p>
+              <p className="font-medium">{formatNumber(vehicle.viewsCount)}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Heart className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Saved by</p>
+              <p className="font-medium">{formatNumber(vehicle.favoritesCount)} buyers</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Send className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Inquiries</p>
+              <p className="font-medium">{formatNumber(vehicle.leadsCount)} leads</p>
+            </div>
           </div>
         </div>
       </div>

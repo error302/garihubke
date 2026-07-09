@@ -76,6 +76,7 @@ export function FilterBar() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="relevance">Recommended</SelectItem>
+            <SelectItem value="deals">Best deals first</SelectItem>
             <SelectItem value="price-asc">Price: Low → High</SelectItem>
             <SelectItem value="price-desc">Price: High → Low</SelectItem>
             <SelectItem value="year-desc">Newest year</SelectItem>

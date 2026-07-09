@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { computeDealRating, estimateMonthlyPayment, computeDaysOnMarket, getSpecialBadges } from '@/lib/market'
 
 // GET /api/vehicles/[slug]
 export async function GET(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
@@ -25,5 +26,40 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
     include: { dealer: true },
   })
 
-  return NextResponse.json({ vehicle, similar })
+  // Fetch all active vehicles for market analysis
+  const allVehicles = await db.vehicle.findMany({ where: { status: 'active' } })
+
+  // Enrich with deal rating + monthly payment
+  const deal = computeDealRating(vehicle, allVehicles)
+  const monthlyPayment = estimateMonthlyPayment(vehicle.price)
+  const daysOnMarket = computeDaysOnMarket(vehicle.createdAt)
+  const specialBadges = getSpecialBadges(vehicle)
+
+  // Get comparables for market analysis chart
+  const comparables = allVehicles.filter(
+    (v) =>
+      v.id !== vehicle.id &&
+      v.make === vehicle.make &&
+      (v.model === vehicle.model || v.bodyType === vehicle.bodyType) &&
+      Math.abs(v.year - vehicle.year) <= 2,
+  ).sort((a, b) => a.price - b.price).map((v) => ({
+    id: v.id,
+    title: v.title,
+    year: v.year,
+    price: v.price,
+    mileage: v.mileage,
+    slug: v.slug,
+  }))
+
+  return NextResponse.json({
+    vehicle: {
+      ...vehicle,
+      deal,
+      monthlyPayment,
+      daysOnMarket,
+      specialBadges,
+    },
+    similar,
+    comparables,
+  })
 }

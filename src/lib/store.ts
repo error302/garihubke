@@ -35,6 +35,9 @@ interface AppState {
   // Admin drawer tab
   adminTab: string
   setAdminTab: (t: string) => void
+  // Admin: editing vehicle ID (when editing from inventory)
+  editingVehicleId: string | null
+  setEditingVehicleId: (id: string | null) => void
 
   // Theme
   theme: 'light' | 'dark'
@@ -92,6 +95,8 @@ export const useAppStore = create<AppState>()(
 
       adminTab: 'overview',
       setAdminTab: (t) => set({ adminTab: t }),
+      editingVehicleId: null,
+      setEditingVehicleId: (id) => set({ editingVehicleId: id }),
 
       theme: 'light',
       setTheme: (t) => {

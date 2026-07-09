@@ -4,8 +4,9 @@ import { cn } from '@/lib/utils'
 import { formatKES, formatKESFull, formatMileage, formatNumber } from '@/lib/format'
 import { useAppStore } from '@/lib/store'
 import type { VehicleWithDealer } from '@/lib/types'
-import { Heart, Gauge, Fuel, Settings2, MapPin, BadgeCheck, Sparkles, Eye, ArrowUpRight, GitCompare } from 'lucide-react'
+import { Heart, Gauge, Fuel, Settings2, MapPin, BadgeCheck, Sparkles, Eye, ArrowUpRight, GitCompare, TrendingDown } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { DEAL_BADGE_STYLES } from '@/lib/market'
 
 interface VehicleCardProps {
   vehicle: VehicleWithDealer
@@ -201,6 +202,13 @@ export function VehicleCard({ vehicle, variant = 'default', index = 0 }: Vehicle
         />
         {/* Top badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+          {/* Deal rating badge — the hero feature */}
+          {(vehicle as any).deal && (vehicle as any).deal.rating !== 'fair' && (
+            <span className={cn('inline-flex items-center gap-1 text-[9px] font-semibold tracking-wider uppercase px-2 py-1', DEAL_BADGE_STYLES[(vehicle as any).deal.rating])}>
+              {(vehicle as any).deal.rating === 'great' || (vehicle as any).deal.rating === 'good' ? <TrendingDown className="w-2.5 h-2.5" /> : null}
+              {(vehicle as any).deal.label}
+            </span>
+          )}
           {vehicle.isFeatured && (
             <span className="inline-flex items-center gap-1 bg-background/95 backdrop-blur text-foreground text-[9px] font-semibold tracking-wider uppercase px-2 py-1">
               <Sparkles className="w-2.5 h-2.5" /> Featured
@@ -209,6 +217,11 @@ export function VehicleCard({ vehicle, variant = 'default', index = 0 }: Vehicle
           {vehicle.condition === 'New' && (
             <span className="inline-flex items-center bg-brand text-brand-foreground text-[9px] font-semibold tracking-wider uppercase px-2 py-1">
               New
+            </span>
+          )}
+          {(vehicle as any).daysOnMarket <= 7 && (
+            <span className="inline-flex items-center bg-foreground text-background text-[9px] font-semibold tracking-wider uppercase px-2 py-1">
+              New listing
             </span>
           )}
           {vehicle.isVerified && (
@@ -274,6 +287,11 @@ export function VehicleCard({ vehicle, variant = 'default', index = 0 }: Vehicle
           <div>
             <p className="text-[9px] text-muted-foreground uppercase tracking-[0.2em]">Price</p>
             <p className="font-display text-xl sm:text-2xl font-semibold">{formatKES(vehicle.price)}</p>
+            {(vehicle as any).monthlyPayment && (
+              <p className="text-[10px] text-muted-foreground mt-0.5">
+                <span className="text-brand font-medium">{formatKES((vehicle as any).monthlyPayment)}/mo</span> est.
+              </p>
+            )}
           </div>
           <div className="flex flex-col items-end gap-1">
             {vehicle.dealer?.isVerified && (
